@@ -508,6 +508,8 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - El Partido Fuerza de la Paz será representado por Roy Barreras.
 - El Partido En Marcha será representado por Juan Fernando Cristo.
 - La candidata del Partido Centro Democrático será definida entre María Fernanda Cabal, Paloma Valencia y Paola Holguín.
+- Nicolás Petro es el hijo mayor de Gustavo Petro, quien está en medio de un proceso judicial bajo las acusaciones de lavado de dinero y enriquecimiento ilícito proveniente del narcotráfico el cual tenía como objetivo el financiamiento de la campaña presidencial de su padre.
+- La Paz Total es una política de Estado implementada por el gobierno de Gustavo Petro en Colombia, que busca acabar el conflicto armado negociando con diversos grupos armados ilegales abriendo canales con diferentes grupos armados para buscar su desmovilización, acogimiento a la justicia o sometimiento.
 
 """
 
