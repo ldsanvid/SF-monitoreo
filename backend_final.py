@@ -514,6 +514,7 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - Héctor Alfonso Carvajal, es abogado del presidente Gustavo Petro, y fue nombrado magistrado de la Corte Constitucional de Colombia en mayo de 2025.
 - El Clan del Golfo es una organización narcoparamilitar y terrorista que surgió tras la desmovilización entre 2003 y 2006 de las Autodefensas Unidas de Colombia. Tiene presencia en 211 municipios del país y trafica un gran número de cargamentos de droga a nivel nacional e internacional.
 - Iván Mordisco es un disidente guerrillero colombiano, parte de las Disidencias de las FARC-EP .
+- Diego Marín Buitrago, conocido como “Papá Pitufo”, es un contrabandista que habría intentado infiltrar la campaña de Petro a través de un empresario catalán, Xavier Vendrell, amigo cercano del ahora presidente. La operación habría incluido la entrega de $500 millones de pesos. Petro que rechazó cualquier intento de infiltración. 
 
 """
 
