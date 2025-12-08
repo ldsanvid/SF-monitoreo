@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitoreo +</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg: white;
+      --card: rgba(0,0,0,.02);
+      --border: rgba(0,0,0,.16);
+      --text: #111;
+      --muted: #330e46;
+      --brand: #fde584;
+      --brand-2:#f7d85d;
+      --success:#820de9;
+      --danger:#ff6b6b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:'Montserrat',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text); background: var(--muted);
+    }
+    header{
+      position:fixed; inset:0 0 auto 0; height:64px; z-index:1000; display:flex; align-items:center; gap:20px;
+      padding:0 20px; backdrop-filter:saturate(140%) blur(10px); background:#820de9b1; border-bottom:1px solid var(--border);
+    }
+    .brand{display:flex; align-items:center; gap:12px; font-weight:700; letter-spacing:.3px}
+    .brand .dot{width:10px; height:10px; border-radius:50%; background:var(--muted)}
+    nav{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap}
+    nav a{color:var(--bg); text-decoration:none; font-weight:600; font-size:.95rem; padding:8px 12px; border:1px solid transparent; border-radius:10px; transition:.2s ease;}
+    nav a:hover{border-color:var(--bg); background:var(--brand-2)}
+
+    main{max-width:1100px; margin:96px auto 48px; padding:0 20px; background:transparent;}
+
+    .card{background:var(--card); border:1px solid var(--border); border-radius:18px; padding:20px;background-color: #fff;}
+    h2,h3{margin:0 0 14px}
+    h2{font-size:1.4rem; font-weight:700; color:var(--success)}
+    h3{font-size:1.15rem; font-weight:700; color:var(--success)}
+    p{color:var(--muted); line-height:1.7; text-align:justify}
+
+    .row{display:grid; gap:14px}
+    .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    select, input[type="text"], input[type="email"], button{
+      background:rgba(0,0,0,.02); color:var(--text); border:1px solid var(--border); border-radius:12px; padding:16px 22px; font:inherit; outline:none; transition:.2s ease; width:100%;
+    }
+    @media(min-width:600px){ select, input[type="text"], input[type="email"]{width:500px; min-width:500px} }
+    button{cursor:pointer; font-weight:700}
+    .btn-primary{background:linear-gradient(180deg,var(--brand-2)); color:#000}
+    .btn-primary:hover{filter:brightness(1.05)}
+
+    .summary{white-space:pre-line; text-align:justify}
+    .chips{display:flex; flex-direction:column; gap:10px}
+    .chip{display:flex; align-items:center; gap:8px; padding:10px 12px; background:rgba(0,0,0,.05); border:1px solid var(--border); border-radius:12px}
+    .chip a {
+        color: var(--success);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .chip a:hover {
+        text-decoration: underline;
+    }
+    .chip small{color:var(--muted)}
+    .hidden{display:none}
+    .muted{color:var(--muted)}
+    .loading {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+        background-size: 400% 100%;
+        animation: shimmer 1.4s ease infinite;
+        border-radius: 4px;
+    }
+    .loading::after{
+      content: attr(data-label);
+      display:block;
+      margin-top:8px;
+      color: var(--muted);
+      font-style: italic;
+    }
+            
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+
+    /* 📱 Ajustes móviles */
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        height: auto;
+        padding: 10px;
+      }
+
+      nav {
+        margin-left: 0;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .tableauPlaceholder {
+        min-height: 400px;
+      }
+
+      nav a {
+        font-size: 0.85rem;
+        padding: 6px 8px;
+      }
+
+      main {
+        margin: 80px auto 20px;
+        padding: 10px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      button, select, input[type="text"], input[type="email"] {
+        width: 100% !important;
+        min-width: unset;
+      }
+    }
+
+    /* 📱 Menú hamburguesa */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 4px;
+    }
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+    /* Animación hamburguesa → X */
+    .hamburger.active div:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger.active div:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.active div:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* Mostrar solo en móvil */
+    @media (max-width: 600px) {
+      .hamburger { display: flex; }
+      nav { 
+        display: none; 
+        flex-direction: column; 
+        width: 100%; 
+        background: white; 
+        border-top: 1px solid var(--border);
+        margin-top: 10px;
+      }
+      nav.show { display: flex; }
+      nav a { 
+        padding: 12px; 
+        border: none; 
+        border-bottom: 1px solid var(--border); 
+        font-size: 1rem;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand" style="color:var(--bg); display:flex; align-items:center; gap:14px;">
+      <img src="static/logo.png" alt="Adelante con Fajardo" 
+           style="height:42px; width:auto; object-fit:contain; margin-right:4px;">
+      <span>Monitoreo<span style="color:var(--brand-2)">+</span></span>
+    </div>
+    <div class="hamburger" id="hamburger">
+      <div></div><div></div><div></div>
+    </div>
+    <nav>
+      <a href="#resumen">Resumen</a>
+      <a href="#preguntas">Preguntas</a>
+      <a href="#reporte">Reporte Semanal</a>
+      <a href="#dashboard_noticias">Noticias</a>
+    </nav>
+  </header>
+  <main>
+    <section id="resumen" class="card row">
+      <h2>📅 Resumen diario de noticias</h2>
+      <div class="controls">
+        <select id="fechaSelect"><option value="" selected>Selecciona una fecha…</option></select>
+        <button id="btnCargar" class="btn-primary">Ver resumen</button>
+        <button id="btnLimpiar">Limpiar</button>
+      </div>
+      <div id="resumenTexto" class="summary"></div>
+      <div id="nubeWrap"></div>
+      <div id="titulares" class="chips"></div>
+
+      <!-- 📧 Campo para enviar por correo -->
+      <div id="emailSection" class="card row" style="margin-top:18px">
+        <h3>📧 Recibir este reporte por correo</h3>
+        <div class="controls">
+          <input id="inputEmail" type="email" placeholder="Escribe tu correo electrónico..." />
+          <button id="btnEnviarEmail" class="btn-primary">Enviar</button>
+        </div>
+        <div id="mensajeEmail" class="muted" style="margin-top:8px;"></div>
+      </div>
+    </section>
+
+    <section id="preguntas" class="card row" style="margin-top:18px">
+      <h2>❓ Pregunta sobre las noticias</h2>
+      <div class="controls">
+        <input id="inputPregunta" type="text" placeholder="Ej. ¿Qué noticias hubo sobre Sergio Fajardo el 30 de octubre?"/> 
+        <button id="btnPreguntar" class="btn-primary">Consultar</button>
+      </div>
+      <div id="respuestaTexto" class="summary"></div>
+      <div id="titularesPregunta" class="chips"></div>
+    </section>
+
+    <section id="reporte" class="card row" style="margin-top:18px">
+      <h2>📑 Reporte semanal</h2>
+      <div id="listaReportes" class="chips"></div>
+    </section>
+
+    <!-- Sección de dashboards -->
+    <section id="dashboards" class="card row" style="margin-top:18px">
+      <!-- Dashboard Noticias -->
+      <div id="dashboard_noticias" style="margin-top:10px">
+        <iframe
+          src="https://public.tableau.com/views/fondo/Nmerodenoticias_1?:showVizHome=no&:embed=true"
+          width="100%"
+          height="800"
+          style="border-radius:14px;border:1px solid var(--border);overflow:hidden;"
+          frameborder="0"
+          allowfullscreen="true"
+        ></iframe>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const fechaSelect = document.getElementById('fechaSelect');
+    const resumenTexto = document.getElementById('resumenTexto');
+    const nubeWrap = document.getElementById('nubeWrap');
+    const titularesDiv = document.getElementById('titulares');
+    const titularesPreguntaDiv = document.getElementById('titularesPregunta');
+
+    const API_BASE = "https://ig-newsmonitoring.onrender.com";
+
+    async function cargarFechas(){
+      try {
+        const r = await fetch(`${API_BASE}/fechas`);
+        const data = await r.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          fechaSelect.innerHTML = '<option value="">No hay fechas disponibles</option>';
+          return;
+        }
+        fechaSelect.innerHTML =
+          '<option value="">Selecciona una fecha…</option>' +
+          data.map(f=>`<option value="${f}">${f}</option>`).join('');
+      } catch (e) {
+        console.error(e);
+        fechaSelect.innerHTML = '<option value="">Error al cargar fechas</option>';
+      }
+    }
+
+    function renderTitulares(list, target, tituloBloque = '') {
+      if (!list || list.length === 0) {
+        target.innerHTML = '<em>No hay titulares disponibles</em>';
+        return;
+      }
+      let html = tituloBloque ? `<h3>${tituloBloque}</h3>` : '';
+      html += list.map(t => `
+        <div class="chip">
+          🗞️ <a href="${t.enlace}" target="_blank">${t.titulo}</a>
+          <small>• ${t.medio}</small>
+        </div>
+      `).join('');
+      target.innerHTML = html;
+    }
+
+    async function cargarResumen() {
+      const fecha = fechaSelect.value;
+      if (!fecha) { alert('Selecciona una fecha'); return; }
+
+      resumenTexto.innerHTML =
+        '<div class="loading" style="width:100%;height:40px;" data-label="Procesando resumen…"></div>';
+      nubeWrap.innerHTML =
+        '<div class="loading" style="width:100%;height:220px;" data-label="Generando nube de palabras…"></div>';
+      titularesDiv.innerHTML =
+        '<div class="loading" style="width:100%;height:20px;" data-label="Cargando titulares…"></div>';
+
+      try {
+        const r = await fetch(`${API_BASE}/resumen`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fecha })
+        });
+        const data = await r.json();
+
+        if (data.error) {
+          resumenTexto.textContent = data.error;
+          nubeWrap.innerHTML = '';
+          titularesDiv.innerHTML = '';
+          return;
+        }
+
+        // Resumen en HTML respetando saltos de línea
+        const texto = data.resumen || '';
+        resumenTexto.innerHTML = texto
+          .replace(/\n\n/g, '<br><br>')
+          .replace(/\n/g, '<br>');
+
+        // Nube de palabras
+        if (data.nube_url) {
+          const src = `${API_BASE}${data.nube_url}?t=${Date.now()}`;
+          nubeWrap.innerHTML =
+            `<img src="${src}" alt="Nube de palabras" style="width:100%;max-width:600px;border-radius:14px;border:1px solid var(--border)">`;
+        } else {
+          nubeWrap.innerHTML = '<em>No se generó nube de palabras para esta fecha.</em>';
+        }
+
+        // Titulares del día
+        renderTitulares(data.titulares || [], titularesDiv, '🗞️ Titulares del día');
+
+      } catch (e) {
+        console.error(e);
+        resumenTexto.textContent = 'Error al cargar el resumen.';
+        nubeWrap.innerHTML = '';
+        titularesDiv.innerHTML = '';
+      }
+    }
+
+    document.getElementById('btnCargar').addEventListener('click', cargarResumen);
+    document.getElementById('btnLimpiar').addEventListener('click', () => {
+      fechaSelect.value='';
+      resumenTexto.textContent='';
+      nubeWrap.innerHTML='';
+      titularesDiv.innerHTML='';
+      titularesPreguntaDiv.innerHTML='';
+    });
+
+    document.getElementById('btnPreguntar').addEventListener('click', async () => {
+      const pregunta = document.getElementById('inputPregunta').value.trim();
+      if (!pregunta) { alert('Escribe tu pregunta'); return; }
+
+      document.getElementById('respuestaTexto').innerHTML =
+        '<div class="loading" style="width:100%;height:40px;" data-label="Procesando respuesta…"></div>';
+      titularesPreguntaDiv.innerHTML =
+        '<div class="loading" style="width:100%;height:20px;" data-label="Buscando titulares relevantes…"></div>';
+
+      try {
+        const r = await fetch(`${API_BASE}/pregunta`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pregunta })
+        });
+        const data = await r.json();
+
+        document.getElementById('respuestaTexto').textContent = data.respuesta || '';
+
+        const titulares = data.titulares_usados || data.titulares || [];
+        if (titulares.length > 0) {
+          titularesPreguntaDiv.innerHTML = titulares
+            .map(t => `
+              <div class="chip">
+                🗞️ <a href="${t.enlace}" target="_blank">${t.titulo}</a>
+                <small>• ${t.medio}</small>
+              </div>
+            `)
+            .join('');
+        } else {
+          titularesPreguntaDiv.innerHTML = '<em>No hay titulares disponibles</em>';
+        }
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('respuestaTexto').textContent = '❌ Error al procesar la pregunta.';
+        titularesPreguntaDiv.innerHTML = '';
+      }
+    });
+
+    document.getElementById('btnEnviarEmail').addEventListener('click', async () => {
+      const email = document.getElementById('inputEmail').value.trim();
+      const fecha = document.getElementById('fechaSelect').value;
+
+      if (!email || !fecha) {
+        document.getElementById('mensajeEmail').textContent = "⚠️ Debes escribir un correo válido y seleccionar una fecha.";
+        return;
+      }
+
+      document.getElementById('mensajeEmail').textContent = "📤 Enviando correo…";
+
+      try {
+        const r = await fetch(`${API_BASE}/enviar_email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, fecha })
+        });
+
+        const data = await r.json();
+        document.getElementById('mensajeEmail').textContent = data.mensaje || "✅ Correo enviado.";
+      } catch (error) {
+        console.error(error);
+        document.getElementById('mensajeEmail').textContent = "❌ Error al enviar el correo.";
+      }
+    });
+
+    const listaReportesDiv = document.getElementById('listaReportes');
+    async function cargarReportes() {
+      try {
+        const r = await fetch(`${API_BASE}/reporte_semanal`);
+        const data = await r.json();
+        if (!data || data.length === 0) {
+          listaReportesDiv.innerHTML = '<em>No hay reportes disponibles</em>';
+          return;
+        }
+        listaReportesDiv.innerHTML = data.map(a =>
+          `<div class="chip">
+             📄 <a href="${API_BASE}${a.url}" target="_blank">${a.nombre}</a>
+             <a href="${API_BASE}${a.url}" download style="margin-left:10px; font-size:.9rem; color:var(--muted); text-decoration:none;">📥 Descargar</a>
+           </div>`
+        ).join('');
+      } catch (e) {
+        console.error(e);
+        listaReportesDiv.innerHTML = '<em>Error al cargar reportes</em>';
+      }
+    }
+
+    // 🍔 Menú hamburguesa toggle
+    const hamburger = document.getElementById('hamburger');
+    const nav = document.querySelector('header nav');
+    hamburger.addEventListener('click', () => {
+      nav.classList.toggle('show');
+      hamburger.classList.toggle('active');
+    });
+
+    // 🚀 Al cargar la página
+    cargarFechas();
+    cargarReportes();
+  </script>
+</body>
+</html>

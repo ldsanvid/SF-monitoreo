@@ -1,0 +1,22 @@
+# Entornos virtuales
+venv/
+.env/
+.env.local
+
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos generados por tu app
+faiss_index/
+resumenes/
+nubes/
+*.log
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
