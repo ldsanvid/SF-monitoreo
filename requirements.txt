@@ -12,7 +12,7 @@ dateparser
 flask_cors
 Babel
 boto3
-faiss-cpu==1.7.4
+faiss-cpu==1.13.1
 gunicorn
 python-dotenv
 langchain-openai

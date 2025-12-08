@@ -497,6 +497,7 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - Cristian Quiroz es el Magistrado y Presidente del Consejo Nacional Electoral de Colombia.
 - Hernán Penagos Giraldo es el actual Director General de la Registraduría Nacional del Estado Civil de Colombia.
 - Gustavo Petro es el actual Presidente de Colombia, en el cargo desde 2022 y hasta 2026.
+- El DAPRE es DEPARTAMENTO ADMINISTRATIVO PRESIDENCIA DE LA REPÚBLICA de Colombia. Angie Rodríguez es la directora.
 - El 31 de mayo de 2026 se llevará a cabo la primera vuelta de la elección presidencial en Colombia.
 - El 21 de julio de 2026 se llevará a cabo la segunda vuelta de la elección presidencial en Colombia.
 - El 8 de marzo de 2026 se llevarán a cabo las elecciones legislativas en Colombia, donde se eligirán a los miembros de ambas cámaras del Congreso de Colombia para el periodo 2026-2030.
@@ -510,6 +511,9 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - La candidata del Partido Centro Democrático será definida entre María Fernanda Cabal, Paloma Valencia y Paola Holguín.
 - Nicolás Petro es el hijo mayor de Gustavo Petro, quien está en medio de un proceso judicial bajo las acusaciones de lavado de dinero y enriquecimiento ilícito proveniente del narcotráfico el cual tenía como objetivo el financiamiento de la campaña presidencial de su padre.
 - La Paz Total es una política de Estado implementada por el gobierno de Gustavo Petro en Colombia, que busca acabar el conflicto armado negociando con diversos grupos armados ilegales abriendo canales con diferentes grupos armados para buscar su desmovilización, acogimiento a la justicia o sometimiento.
+- Héctor Alfonso Carvajal, es abogado del presidente Gustavo Petro, y fue nombrado magistrado de la Corte Constitucional de Colombia en mayo de 2025.
+- El Clan del Golfo es una organización narcoparamilitar y terrorista que surgió tras la desmovilización entre 2003 y 2006 de las Autodefensas Unidas de Colombia. Tiene presencia en 211 municipios del país y trafica un gran número de cargamentos de droga a nivel nacional e internacional.
+- Iván Mordisco es un disidente guerrillero colombiano, parte de las Disidencias de las FARC-EP .
 
 """
 
