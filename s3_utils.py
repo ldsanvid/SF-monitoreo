@@ -62,12 +62,21 @@ def s3_download_all():
     os.makedirs(FAISS_DIR, exist_ok=True)
 
     archivos = [
+        # Resúmenes globales legacy (si aún los usas)
         "resumenes_metadata.csv",
         "resumenes_index.faiss",
+
+        # Resúmenes LangChain (vectorstore de resúmenes diario)
+        "resumenes_lc/resumenes_lc_metadata.csv",
+        "resumenes_lc/index.faiss",
+        "resumenes_lc/index.pkl",
+
+        # Noticias (ya funcionando)
         "noticias_lc/noticias_lc_metadata.csv",
         "noticias_lc/index.faiss",
         "noticias_lc/index.pkl",
     ]
+
 
     for fname in archivos:
         local_path = os.path.join(FAISS_DIR, fname)   # p.ej. faiss_index/noticias_lc/index.faiss

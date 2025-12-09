@@ -443,6 +443,7 @@ Tu objetivo es responder la pregunta del usuario de forma profesional, clara y b
         else:
             df_meta_final = df_meta_prev
 
+        # 7️⃣ Guardar metadatos de resúmenes
         try:
             df_meta_final.to_csv(meta_lc_path, index=False, encoding="utf-8-sig")
             print(f"✅ Metadatos de resúmenes guardados/actualizados en {meta_lc_path} con {len(df_meta_final)} registros.")
@@ -456,9 +457,25 @@ Tu objetivo es responder la pregunta del usuario de forma profesional, clara y b
         except Exception as e:
             print(f"⚠️ Error al guardar vectorstore_resumenes: {e}")
 
+        # 8.1️⃣ Subir índice y metadatos de resúmenes a S3
+        try:
+            # CSV de metadatos de resúmenes (LangChain)
+            rel_meta_key = os.path.join("resumenes_lc", "resumenes_lc_metadata.csv")
+            r2_upload(rel_meta_key)
+
+            # Archivos principales del índice FAISS de LangChain
+            for fname in ["index.faiss", "index.pkl"]:
+                rel_key = os.path.join("resumenes_lc", fname)
+                r2_upload(rel_key)
+
+            print("☁️ Índice de resúmenes y metadatos subidos a S3.")
+        except Exception as e:
+            print(f"⚠️ No se pudo subir índice de resúmenes a S3: {e}")
+
         # 9️⃣ Crear el retriever
         retriever_resumenes = vectorstore_resumenes.as_retriever(search_kwargs={"k": 3})
         print("✅ retriever_resumenes listo para usarse.")
+
 
     # ==========================================
     # 🧩 Inicializar Vectorstores (RAG)
