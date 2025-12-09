@@ -1896,6 +1896,9 @@ def enviar_email():
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <tr>
                 <td align="left" style="vertical-align:middle;">
+                    <img src="cid:logo_monitoreo"
+                         alt="Logo"
+                         style="max-height:48px; width:auto; display:block;">
                 </td>
                 <td align="right" style="font-weight:700; font-size:1.2rem; color:#111;">
                     Monitoreo<span style="color:#FFB429;">+</span>
@@ -1942,6 +1945,13 @@ def enviar_email():
 
 
     msg.attach(MIMEText(cuerpo, "html"))
+    logo_path = os.path.join("static", "logo.png")
+    if os.path.exists(logo_path):
+        with open(logo_path, "rb") as logo_file:
+            logo = MIMEImage(logo_file.read())
+            logo.add_header("Content-ID", "<logo_monitoreo>")
+            logo.add_header("Content-Disposition", "inline", filename="logo.png")
+            msg.attach(logo)
 
     # 📎 Adjuntar nube inline
     if os.path.exists(archivo_nube):

@@ -59,9 +59,16 @@ def s3_download_all():
     os.makedirs(FAISS_DIR, exist_ok=True)
 
     archivos = [
+        # Resúmenes globales (ya los tenías)
         "resumenes_metadata.csv",
         "resumenes_index.faiss",
+
+        # Índice de noticias (lo que ya estás subiendo desde el backend)
+        "noticias_lc/noticias_lc_metadata.csv",
+        "noticias_lc/index.faiss",
+        "noticias_lc/index.pkl",
     ]
+
 
     for fname in archivos:
         local_path = os.path.join(FAISS_DIR, fname)
