@@ -66,7 +66,7 @@ print("📁 Base directory:", base_dir)
 # --- Cargar base de noticias ---
 try:
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    noticias_path = os.path.join(base_dir, "noticias_fajardo.xlsx")
+    noticias_path = os.path.join(base_dir, "noticias_fajardo.csv")
     print("📁 Base directory:", base_dir)
     print("Intentando leer:", noticias_path)
 
