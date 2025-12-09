@@ -66,7 +66,7 @@ print("📁 Base directory:", base_dir)
 # --- Cargar base de noticias ---
 try:
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    noticias_path = os.path.join(base_dir, "noticias_fajardo.csv")
+    noticias_path = os.path.join(base_dir, "noticias_fajardo.xlsx")
     print("📁 Base directory:", base_dir)
     print("Intentando leer:", noticias_path)
 
@@ -515,6 +515,8 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - El Clan del Golfo es una organización narcoparamilitar y terrorista que surgió tras la desmovilización entre 2003 y 2006 de las Autodefensas Unidas de Colombia. Tiene presencia en 211 municipios del país y trafica un gran número de cargamentos de droga a nivel nacional e internacional.
 - Iván Mordisco es un disidente guerrillero colombiano, parte de las Disidencias de las FARC-EP .
 - Diego Marín Buitrago, conocido como “Papá Pitufo”, es un contrabandista que habría intentado infiltrar la campaña de Petro a través de un empresario catalán, Xavier Vendrell, amigo cercano del ahora presidente. La operación habría incluido la entrega de $500 millones de pesos. Petro que rechazó cualquier intento de infiltración. 
+- El 30 de noviembre de 2025 se publicó una encuesta de INVAMER que muestra a Iván Cepeda con 31.9% de la intención de voto, Abelardo De La Espriella con 18.2% y Sergio Fajardo con 8.5%. El resto de precandidatos registra menos intención de voto que la opción del voto en blanco.
+ -En la encuesta de INVAMER del 30 de noviembre, en el escenario de segunda vuelta que enfrente e Cepeda contra De la Espriella, Cepeda saca 59.1%, y De la Espriella 36.2%. Enun esceneario de Cepeda contra Fajardo, Cepeda se queda en 48.9% y Fajardo en 46.4%. En un escenario de Fajardo contra De la Espriella, Fajardo gana con 51.7% mientras que De la Espriella se queda en 38.9%.
 
 """
 
@@ -715,7 +717,7 @@ def generar_resumen_y_datos(fecha_str):
     partidos_kw = [
                     "Elección", "Elecciones","Coalición", "Coaliciones", "Pacto Histórico","Cambio Radical", "Centro Democrático", "Partido de la U", 
                    "Colombia Humana","Alianza Verde","Partido Liberal", "Partido Conservador","Comunes","Nuevo Liberalismo","En Marcha","Dignidad y Compromiso",
-                    "Partido MIRA","Ahora Colombia","Movimiento de Salvación Nacional", "Cámara de representantes", "Senado", "Álvaro Uribe", "César Gaviria", "Manuel Virgüez",
+                    "Partido MIRA","Ahora Colombia","Movimiento de Salvación Nacional", "Cámara de representantes", "Senado", "Álvaro Uribe", "César Gaviria", "Simón Gaviria", "Manuel Virgüez",
                     "Ana Paola Agudelo","Jorge Robledo", "Antonio Navarro Wolff", "Clara Luz Roldán", "Congreso"
                     ]
     partidos_kw = [s.lower() for s in partidos_kw]
@@ -826,7 +828,7 @@ Debes redactar un resumen dividido en CINCO PÁRRAFOS, en este orden:
 - No incluyas aquí temas puramente institucionales (CNE, reglas electorales) ni noticias centradas en Petro, ni en partidos políticos.
 
  Párrafo 3 - Partidos políticos, coaliciones y Congreso
-- Resume qué se dijo sobre partidos políticos, sus presidentes (Álvaro Uribe, César Gaviria, Manuel Virgüez, Ana Paola Agudelo, Jorge Robledo, Antonio Navarro Wolff, Clara Luz Roldán), coaliciones, cámara de representantes, senado y elecciones en general.
+- Resume qué se dijo sobre partidos políticos, sus presidentes (Álvaro Uribe, César Gaviria, Simón Gaviria, Manuel Virgüez, Ana Paola Agudelo, Jorge Robledo, Antonio Navarro Wolff, Clara Luz Roldán), coaliciones, cámara de representantes, senado y elecciones en general.
 - Incluye nombres, cargos, instituciones y tipo de cobertura (propuestas, polémicas, alianzaas, etc.).
 - No incluyas aquí temas puramente institucionales (CNE, reglas electorales) ni noticias centradas en Petro, ni en Sergio Fajardo ni en otros candidatos.
 
