@@ -110,7 +110,7 @@ try:
 
     prompt_pregunta = ChatPromptTemplate.from_messages([
         ("system", """
-Eres un analista experto en noticias, geopolítica y economía.
+Eres un analista experto en noticias y política colombiana.
 Responde SIEMPRE en español.
 NO inventes datos ni traigas información de fuera del contexto.
 Si el contexto incluye al menos un titular o un resumen relevante, NO digas que “no se dispone de información” ni frases parecidas; en su lugar, explica lo que SÍ se sabe con base en esos elementos.
@@ -274,9 +274,25 @@ Tu objetivo es responder la pregunta del usuario de forma profesional, clara y b
         except Exception as e:
             print(f"⚠️ Error al guardar vectorstore_noticias: {e}")
 
+        # 8.1️⃣ Subir índice y metadatos de noticias a S3
+        try:
+            # Subir CSV de metadatos de noticias
+            rel_meta_key = os.path.join("noticias_lc", "noticias_lc_metadata.csv")
+            r2_upload(rel_meta_key)
+
+            # Subir archivos principales del índice FAISS de LangChain
+            for fname in ["index.faiss", "index.pkl"]:
+                rel_key = os.path.join("noticias_lc", fname)
+                r2_upload(rel_key)
+
+            print("☁️ Índice de noticias y metadatos subidos a S3.")
+        except Exception as e:
+            print(f"⚠️ No se pudo subir índice de noticias a S3: {e}")
+
         # 9️⃣ Crear el retriever
         retriever_noticias = vectorstore_noticias.as_retriever(search_kwargs={"k": 8})
         print("✅ retriever_noticias listo para usarse.")
+
 
 
     def cargar_vectorstore_resumenes():
@@ -501,14 +517,14 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - El 31 de mayo de 2026 se llevará a cabo la primera vuelta de la elección presidencial en Colombia.
 - El 21 de julio de 2026 se llevará a cabo la segunda vuelta de la elección presidencial en Colombia.
 - El 8 de marzo de 2026 se llevarán a cabo las elecciones legislativas en Colombia, donde se eligirán a los miembros de ambas cámaras del Congreso de Colombia para el periodo 2026-2030.
-- El 26 de octubre de 2025 se realizó la consulta presidencial del Pacto Histórico para escoger el candidato del partido a la presidencia en las elecciones presidenciales de Colombia de 2026. El ganador de la consulta fue el senador Iván Cepeda, obteniendo formalmente el aval para aspirar a la Presidencia de la República.
+- El 26 de octubre de 2025 se realizó la consulta presidencial del Pacto Histórico (movimiento político de Gustavo Petro) para escoger el candidato del partido a la presidencia en las elecciones presidenciales de Colombia de 2026. El ganador de la consulta fue el senador Iván Cepeda, obteniendo formalmente el aval para aspirar a la Presidencia de la República.
 - El Partido Movimiento de Salvación Nacional respaldó a Abelardo de la Espriella como precandidato, quien a principios de diciembre de 2025 entregó alrededor de 5 millones de firmas ante la Registraduría para inscribir su candidatura a la Presidencia de Colombia.
 - El Partido Dignidad y Compromiso será representado por Sergio Fajardo. 
 - El Partido Nuevo Liberalismo será representado por Juan Manuel Galán.
 - El Partido Verde será representado por Juan Carlos Pinzón, quien también recibió el apoyo del partido político Alianza Democrática Amplia.
 - El Partido Fuerza de la Paz será representado por Roy Barreras.
 - El Partido En Marcha será representado por Juan Fernando Cristo.
-- La candidata del Partido Centro Democrático será definida entre María Fernanda Cabal, Paloma Valencia y Paola Holguín.
+- La candidata del Partido Centro Democrático (movimiento político de Álvaro Uribe) será definida entre María Fernanda Cabal, Paloma Valencia y Paola Holguín.
 - Nicolás Petro es el hijo mayor de Gustavo Petro, quien está en medio de un proceso judicial bajo las acusaciones de lavado de dinero y enriquecimiento ilícito proveniente del narcotráfico el cual tenía como objetivo el financiamiento de la campaña presidencial de su padre.
 - La Paz Total es una política de Estado implementada por el gobierno de Gustavo Petro en Colombia, que busca acabar el conflicto armado negociando con diversos grupos armados ilegales abriendo canales con diferentes grupos armados para buscar su desmovilización, acogimiento a la justicia o sometimiento.
 - Héctor Alfonso Carvajal, es abogado del presidente Gustavo Petro, y fue nombrado magistrado de la Corte Constitucional de Colombia en mayo de 2025.
@@ -653,11 +669,7 @@ def generar_nube(titulos, archivo_salida):
         "se", "su", "sus", "lo", "al", "el", "en", "y", "a", "de", "un", "es", "si", "quieren", "aún",
         "mantiene", "buscaría", "la", "haciendo", "recurriría", "ante", "meses", "están", "subir",
         "ayer", "prácticamente", "sustancialmente", "busca", "cómo", "qué", "días", "construcción","tariffs",
-        "aranceles","construcción","Fajardo", "Sergio", "de la Espriella", "Abelardo", "Ivan Cepeda", "Cepeda",
-        "Miguel Uribe","Vicky Dávila", "Juan Carlos Pinzón", "Vargas Lleras", "Santiago Botero", "Juan Manuel Galán",
-        "Cabal","Paloma Valencia", "Camilo Romero", "Luis Gilberto Murillo","Luis Carlos Reyes", "Efraín Cepeda","Paola Holguín",
-        "Roy Barrera","David Luna", "Mauricio Cárdenas", "Juan Daniel Oviedo","Mauricio Armitage","Carlos Felipe Córdoba",
-        "Mauricio Gómez Amín", "Mauricio Lizcano","Daniel Palacio","Juan Fernando Cristo", 
+        "aranceles","construcción", "Sergio","así", "no", "congreso","Gustavo","irá",
         "Consejo Nacional Electoral","CNE", "Elección","Gustavo Petro", "Petro", "Elecciones","Coalición", "Coaliciones"
     ])
     wc = WordCloud(

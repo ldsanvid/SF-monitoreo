@@ -212,7 +212,7 @@
     <section id="preguntas" class="card row" style="margin-top:18px">
       <h2>❓ Pregunta sobre las noticias</h2>
       <div class="controls">
-        <input id="inputPregunta" type="text" placeholder="Ej. ¿Qué noticias hubo sobre Sergio Fajardo el 30 de octubre?"/> 
+        <input id="inputPregunta" type="text" placeholder="Ej. ¿Qué noticias hubo sobre Sergio Fajardo el 8 de diciembre?"/> 
         <button id="btnPreguntar" class="btn-primary">Consultar</button>
       </div>
       <div id="respuestaTexto" class="summary"></div>
@@ -229,7 +229,7 @@
       <!-- Dashboard Noticias -->
       <div id="dashboard_noticias" style="margin-top:10px">
         <iframe
-          src="https://public.tableau.com/views/fondo/Nmerodenoticias_1?:showVizHome=no&:embed=true"
+          src="https://public.tableau.com/views/SF_17652944168240/Recuentodenoticiasporpersonajetrmino?:language=es-ES&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link"
           width="100%"
           height="800"
           style="border-radius:14px;border:1px solid var(--border);overflow:hidden;"
@@ -239,7 +239,6 @@
       </div>
     </section>
   </main>
-
   <script>
     const fechaSelect = document.getElementById('fechaSelect');
     const resumenTexto = document.getElementById('resumenTexto');
@@ -313,14 +312,16 @@
           .replace(/\n\n/g, '<br><br>')
           .replace(/\n/g, '<br>');
 
-        // Nube de palabras
-        if (data.nube_url) {
-          const src = `${API_BASE}${data.nube_url}?t=${Date.now()}`;
-          nubeWrap.innerHTML =
-            `<img src="${src}" alt="Nube de palabras" style="width:100%;max-width:600px;border-radius:14px;border:1px solid var(--border)">`;
-        } else {
-          nubeWrap.innerHTML = '<em>No se generó nube de palabras para esta fecha.</em>';
-        }
+      // Nube de palabras
+      if (data.nube_url) {
+        const src = `${API_BASE}${data.nube_url}?t=${Date.now()}`;
+        nubeWrap.innerHTML =
+          `<img src="${src}" alt="Nube de palabras"
+                style="display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--border)">`;
+      } else {
+        nubeWrap.innerHTML = '<em>No se generó nube de palabras para esta fecha.</em>';
+      }
+
 
         // Titulares del día
         renderTitulares(data.titulares || [], titularesDiv, '🗞️ Titulares del día');
