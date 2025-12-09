@@ -49,6 +49,9 @@ def s3_download_all():
 
     - resumenes_metadata.csv
     - resumenes_index.faiss
+    - noticias_lc/noticias_lc_metadata.csv
+    - noticias_lc/index.faiss
+    - noticias_lc/index.pkl
 
     y los deja en faiss_index/<archivo>.
     """
@@ -59,20 +62,19 @@ def s3_download_all():
     os.makedirs(FAISS_DIR, exist_ok=True)
 
     archivos = [
-        # Resúmenes globales (ya los tenías)
         "resumenes_metadata.csv",
         "resumenes_index.faiss",
-
-        # Índice de noticias (lo que ya estás subiendo desde el backend)
         "noticias_lc/noticias_lc_metadata.csv",
         "noticias_lc/index.faiss",
         "noticias_lc/index.pkl",
     ]
 
-
     for fname in archivos:
-        local_path = os.path.join(FAISS_DIR, fname)
-        s3_key = fname  # o f"faiss_index/{fname}" si usas prefijo
+        local_path = os.path.join(FAISS_DIR, fname)   # p.ej. faiss_index/noticias_lc/index.faiss
+        s3_key = fname                                # p.ej. noticias_lc/index.faiss
+
+        # 👇 ESTA LÍNEA ES LA CLAVE: crear carpeta padre si no existe
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
 
         try:
             s3.download_file(BUCKET, s3_key, local_path)
@@ -80,3 +82,4 @@ def s3_download_all():
         except Exception as e:
             # No es fatal si no existe al principio (primer deploy)
             print(f"⚠️ No se pudo descargar {s3_key} desde S3: {e}")
+
