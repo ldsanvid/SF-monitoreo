@@ -1517,18 +1517,30 @@ def interpretar_rango_fechas(pregunta: str, df_noticias: pd.DataFrame):
             resultados = []
 
         if resultados:
-            fechas_detectadas = [r[1].date() for r in resultados]
-
-            if (
-                ("entre " in texto_lower or " del " in texto_lower or "del " in texto_lower or "desde " in texto_lower)
-                and len(fechas_detectadas) >= 2
-            ):
-                fecha_inicio = min(fechas_detectadas[0], fechas_detectadas[1])
-                fecha_fin = max(fechas_detectadas[0], fechas_detectadas[1])
-                origen = "rango_explicito_search_dates"
+            # Solo aceptamos fragmentos que tengan algún dígito
+            # (evita que expresiones vagas como "últimas encuestas"
+            # se tomen como una fecha puntual).
+            resultados_filtrados = []
+            for frag, fecha_dt in resultados:
+                if re.search(r"\d", frag):
+                    resultados_filtrados.append((frag, fecha_dt))
+                                                
+            if resultados_filtrados:
+                fechas_detectadas = [r[1].date() for r in resultados_filtrados]
             else:
-                fecha_inicio = fecha_fin = fechas_detectadas[0]
-                origen = "fecha_puntual"
+                fechas_detectadas = []
+            if fechas_detectadas:
+                if (
+                    ("entre " in texto_lower or " del " in texto_lower or "del " in texto_lower or "desde " in texto_lower)
+                    and len(fechas_detectadas) >= 2
+                ):
+                    fecha_inicio = min(fechas_detectadas[0], fechas_detectadas[1])
+                    fecha_fin = max(fechas_detectadas[0], fechas_detectadas[1])
+                    origen = "rango_explicito_search_dates"
+                else:
+                    fecha_inicio = fecha_fin = fechas_detectadas[0]
+                    origen = "fecha_puntual"
+
 
     # 7️⃣ Ajustar al rango del dataset
     if fecha_inicio is not None and fecha_fin is not None:
@@ -1764,8 +1776,8 @@ def pregunta():
                 "enlace": enlace,
             })
 
-        lineas_titulares = lineas_titulares[:10]
-        titulares_usados = titulares_usados[:10]
+        lineas_titulares = lineas_titulares[:6]
+        titulares_usados = titulares_usados[:6]
 
         if lineas_titulares:
             bloque_titulares = "\n".join(lineas_titulares)
