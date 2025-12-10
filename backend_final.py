@@ -1913,6 +1913,12 @@ def enviar_email():
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <tr>
                 <td align="left" style="vertical-align:middle;">
+                      <div style="
+                        background:#f6f6f6;
+                        padding:10px 14px;
+                        border-radius:8px;
+                        display:inline-block;
+                        ">
                     <img src="cid:logo_monitoreo"
                          alt="Logo"
                          style="max-height:48px; width:auto; display:block;">
