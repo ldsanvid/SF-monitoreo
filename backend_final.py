@@ -812,7 +812,7 @@ def generar_resumen_y_datos(fecha_str):
     )
 
     # =============================================================================
-    # 3️⃣ CONTEXTO NARRATIVO PREVIO (último resumen guardado)
+    # 3️⃣ CONTEXTO NARRATIVO PREVIO (sólo días ANTERIORES a la fecha del resumen)
     # =============================================================================
     CONTEXTO_ANTERIOR = ""
     try:
@@ -820,20 +820,34 @@ def generar_resumen_y_datos(fecha_str):
         if os.path.exists(meta_path):
             df_prev = pd.read_csv(meta_path)
 
-            if len(df_prev) > 0:
-                ultimos = df_prev.tail(1)
-                contexto_texto = "\n\n".join(
-                    [f"({row['fecha']}) {str(row['resumen']).strip()}" for _, row in ultimos.iterrows()]
-                )
+            if len(df_prev) > 0 and "fecha" in df_prev.columns:
+                # Normalizar fechas a tipo date
+                df_prev["fecha"] = pd.to_datetime(
+                    df_prev["fecha"], errors="coerce"
+                ).dt.date
 
-                CONTEXTO_ANTERIOR = f"""
-                CONTEXTO DEL ÚLTIMO DÍA REGISTRADO:
-                {contexto_texto}
-                """
+                # Quedarnos SOLO con resúmenes de días anteriores al que vamos a resumir
+                df_prev_anteriores = df_prev[df_prev["fecha"] < fecha_dt].sort_values("fecha")
 
-                print(f"🔗 Contexto narrativo cargado (último día: {ultimos.iloc[-1]['fecha']})")
+                if len(df_prev_anteriores) > 0:
+                    ultimos = df_prev_anteriores.tail(1)
+                    contexto_texto = "\n\n".join(
+                        f"({row['fecha']}) {str(row['resumen']).strip()}"
+                        for _, row in ultimos.iterrows()
+                    )
+
+                    CONTEXTO_ANTERIOR = (
+                        "CONTEXTO DEL ÚLTIMO DÍA ANTERIOR REGISTRADO:\n"
+                        f"{contexto_texto}\n"
+                    )
+
+                    print(
+                        f"🔗 Contexto narrativo cargado "
+                        f"(último día anterior: {ultimos.iloc[-1]['fecha']})"
+                    )
     except Exception as e:
         print(f"⚠️ No se pudo cargar el contexto narrativo: {e}")
+
 
     # =============================================================================
     # 4️⃣ PROMPT CON 4 PÁRRAFOS OBLIGATORIOS
