@@ -525,6 +525,7 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - Germán Ávila es el actual Ministro de Hacienda y Crédito Público de Colombia, desde el 20 de julio de 2025.
 - Pedro Sánchez es el actual Ministro de Defensa de Colombia, en el cargo desde el 11 de febrero de 2025.
 - Edwin Palma es el actual Ministro de Minas y Energía de Colombia, en el cargo desde el 25 de febrero de 2025. 
+- Luz Adriana Camargo es la actual fiscal general de Colombia.
 - Scott Bessent es el actual Secretario del Tesoro de Estados Unidos.
 - Javier Milei es el actual Presidente de Argentina.
 - Cristian Quiroz es el Magistrado y Presidente del Consejo Nacional Electoral de Colombia.
@@ -549,8 +550,11 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - Iván Mordisco es un disidente guerrillero colombiano, parte de las Disidencias de las FARC-EP .
 - Diego Marín Buitrago, conocido como “Papá Pitufo”, es un contrabandista que habría intentado infiltrar la campaña de Petro a través de un empresario catalán, Xavier Vendrell, amigo cercano del ahora presidente. La operación habría incluido la entrega de $500 millones de pesos. Petro que rechazó cualquier intento de infiltración. 
 - El 30 de noviembre de 2025 se publicó una encuesta de INVAMER que muestra a Iván Cepeda con 31.9% de la intención de voto, Abelardo De La Espriella con 18.2% y Sergio Fajardo con 8.5%. El resto de precandidatos registra menos intención de voto que la opción del voto en blanco.
- -En la encuesta de INVAMER del 30 de noviembre, en el escenario de segunda vuelta que enfrente e Cepeda contra De la Espriella, Cepeda saca 59.1%, y De la Espriella 36.2%. Enun esceneario de Cepeda contra Fajardo, Cepeda se queda en 48.9% y Fajardo en 46.4%. En un escenario de Fajardo contra De la Espriella, Fajardo gana con 51.7% mientras que De la Espriella se queda en 38.9%.
-
+- En la encuesta de INVAMER del 30 de noviembre, en el escenario de segunda vuelta que enfrente e Cepeda contra De la Espriella, Cepeda saca 59.1%, y De la Espriella 36.2%. Enun esceneario de Cepeda contra Fajardo, Cepeda se queda en 48.9% y Fajardo en 46.4%. En un escenario de Fajardo contra De la Espriella, Fajardo gana con 51.7% mientras que De la Espriella se queda en 38.9%.
+- SIC es la Superintendencia de Industria y Comercio.
+- Hidroituango es un megaproyecto hidroeléctrico en Antioquia, Colombia, desarrollado por EPM en la que el organismo de control declaró responsables fiscales a 26 personas, incluyendo al Sergio Fajardo, quien fue gobernador cuando se planeó la obra, por los errores que llevaron al colapso de la obra en 2018 debido a obstrucciones generalizadas en los túneles de desviación del río Cauca. La obra terminó pero con retrasos.
+- En una serie de videos publicados por el también precandidato presidencial y excontralor de la república Carlos Felipe Córdoba, se evidencia como Sergio Fajardo fue uno de los responsables del desastre de Hidroituango y se relata todo lo sucedido con el proyecto. Fajardo había pedido a la SIC bloquear temporalmente el video publicado por Córdoba porque usa su voz e imagen sin su autorización.
+- Recientemente suspendieron al general Juan Miguel Huertas, comandante de Personal del Ejército, por supuestos vínculos entre altos mandos militares y estructuras disidentes de las extintas Fuerzas Armadas Revolucionarias de Colombia (FARC), lideradas por alias “Calarcá”.
 """
 
 def extraer_fechas(pregunta):
