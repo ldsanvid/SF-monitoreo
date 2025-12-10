@@ -1956,6 +1956,8 @@ def enviar_email():
     """
 
 
+    msg.attach(MIMEText(cuerpo, "html"))
+    
     # 📎 Adjuntar nube inline
     if os.path.exists(archivo_nube):
         with open(archivo_nube, "rb") as img_file:
