@@ -1956,15 +1956,6 @@ def enviar_email():
     """
 
 
-    msg.attach(MIMEText(cuerpo, "html"))
-    logo_path = os.path.join("static", "logo.png")
-    if os.path.exists(logo_path):
-        with open(logo_path, "rb") as logo_file:
-            logo = MIMEImage(logo_file.read())
-            logo.add_header("Content-ID", "<logo_monitoreo>")
-            logo.add_header("Content-Disposition", "inline", filename="logo.png")
-            msg.attach(logo)
-
     # 📎 Adjuntar nube inline
     if os.path.exists(archivo_nube):
         with open(archivo_nube, "rb") as img_file:
