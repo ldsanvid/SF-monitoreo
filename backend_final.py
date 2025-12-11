@@ -673,11 +673,11 @@ def filtrar_titulares(df_filtrado, entidades, sentimiento_deseado):
 # 7️⃣ Nube de palabras con colores y stopwords personalizadas
 def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
     if font_size >= 60:
-        return "rgb(61, 183, 162)"
+        return "rgb(255, 205, 0)"
     elif font_size >= 40:
-        return "rgb(253, 181, 93)"
+        return "rgb(0, 48, 135)"
     else:
-        return "rgb(11, 53, 71)"
+        return "rgb(200, 16, 46)"
 
 def generar_nube(titulos, archivo_salida):
     texto = " ".join(titulos)
