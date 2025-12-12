@@ -1903,14 +1903,14 @@ def enviar_email():
         titulares_cards.append(card)
 
     filas_html = []
-    for i in range(0, len(titulares_cards), 4):
-        fila = titulares_cards[i:i+4]
+    for i in range(0, len(titulares_cards), 2):
+        fila = titulares_cards[i:i+2]
 
         # celdas de la fila
         tds = "".join([f'<td style="width:25%; padding:6px; vertical-align:top;">{c}</td>' for c in fila])
 
         # si faltan celdas para completar 4, rellenar con vacías
-        faltan = 4 - len(fila)
+        faltan = 2 - len(fila)
         if faltan > 0:
             tds += "".join(['<td style="width:25%; padding:6px;"></td>' for _ in range(faltan)])
 
