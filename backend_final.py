@@ -1903,14 +1903,14 @@ def enviar_email():
         titulares_cards.append(card)
 
     filas_html = []
-    for i in range(0, len(titulares_cards), 2):
-        fila = titulares_cards[i:i+2]
+    for i in range(0, len(titulares_cards), 1):
+        fila = titulares_cards[i:i+1]
 
         # celdas de la fila
         tds = "".join([f'<td style="width:25%; padding:6px; vertical-align:top;">{c}</td>' for c in fila])
 
         # si faltan celdas para completar 4, rellenar con vacías
-        faltan = 2 - len(fila)
+        faltan = 1 - len(fila)
         if faltan > 0:
             tds += "".join(['<td style="width:25%; padding:6px;"></td>' for _ in range(faltan)])
 
@@ -1954,16 +1954,6 @@ def enviar_email():
         <!-- Titulares español -->
         <h3 style="font-size:1.15rem; font-weight:700; color:#555; margin-top:20px;">🗞️ Principales titulares</h3>
         {titulares_es_html}
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
-            {''.join([
-                f"<div style='padding:10px; border:1px solid #ddd; border-radius:12px; background:#fff; max-width:100%; "
-                f"word-break:normal; white-space:normal; overflow-wrap:anywhere;'>"
-                f"<a href='{t['enlace']}' style='color:#0B57D0; font-weight:600; text-decoration:none;'>{t['titulo']}</a>"
-                f"<br><small style='color:#7D7B78;'>• {t['medio']}</small></div>"
-                 for t in titulares_info
-            ])}
-        </div>
-
         <!-- Nube -->
         <h3 style="font-size:1.15rem; font-weight:700; color:#555; margin-top:20px;">☁️ Nube de palabras</h3>
         <div style="text-align:center; margin-top:12px;">
