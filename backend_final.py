@@ -563,6 +563,8 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - Hidroituango es un megaproyecto hidroeléctrico en Antioquia, Colombia, desarrollado por EPM en la que el organismo de control declaró responsables fiscales a 26 personas, incluyendo al Sergio Fajardo, quien fue gobernador cuando se planeó la obra, por los errores que llevaron al colapso de la obra en 2018 debido a obstrucciones generalizadas en los túneles de desviación del río Cauca. La obra terminó pero con retrasos.
 - En una serie de videos publicados por el también precandidato presidencial y excontralor de la república Carlos Felipe Córdoba, se evidencia como Sergio Fajardo fue uno de los responsables del desastre de Hidroituango y se relata todo lo sucedido con el proyecto. Fajardo había pedido a la SIC bloquear temporalmente el video publicado por Córdoba porque usa su voz e imagen sin su autorización.
 - Recientemente suspendieron al general Juan Miguel Huertas, comandante de Personal del Ejército, por supuestos vínculos entre altos mandos militares y estructuras disidentes de las extintas Fuerzas Armadas Revolucionarias de Colombia (FARC), lideradas por alias “Calarcá”.
+- Notica sobre "El Camino de Fajardo", se refiere a un análisis estratégico sobre sus probabilidades de ganar la presidencia, citando la encuesta de INVAMER para decir lo siguiente "La izquierda extrema, la derecha extrema y el centro. Sergio Fajardo llega fuerte a cinco meses de las elecciones y la primera vuelta. El exgobernador de Antioquia es el que le compite mejor a Iván Cepeda en segunda vuelta. Aunque en primera vuelta es el tercer candidato, en la segunda Abelardo pierde con una distancia importante frente a Cepeda". Si ves esa noticia, menciona ese contexto.
+"
 """
 
 def extraer_fechas(pregunta):
@@ -698,7 +700,7 @@ def generar_nube(titulos, archivo_salida):
         "se", "su", "sus", "lo", "al", "el", "en", "y", "a", "de", "un", "es", "si", "quieren", "aún",
         "mantiene", "buscaría", "la", "haciendo", "recurriría", "ante", "meses", "están", "subir",
         "ayer", "prácticamente", "sustancialmente", "busca", "cómo", "qué", "días", "construcción","tariffs",
-        "aranceles","construcción", "Sergio","así", "no","Fajardo","irá", 
+        "aranceles","construcción", "Sergio","así", "no","Fajardo","irá", "está", "sea", "eso"
     ])
     wc = WordCloud(
         width=800,
@@ -707,10 +709,10 @@ def generar_nube(titulos, archivo_salida):
         stopwords=stopwords,
         color_func=color_func,
         collocations=False,
-        max_words=25
+        max_words=10
     ).generate(texto)
     wc.to_file(archivo_salida)
-    
+
 def seleccionar_titulares_categorizados(noticias_dia, max_total=None):
         """
         Selecciona titulares SOLO de Sergio Fajardo (Término == "Sergio Fajardo"),
@@ -959,19 +961,16 @@ def generar_resumen_y_datos(fecha_str):
 {CONTEXTO_POLITICO}
 
 Tienes titulares de noticias sobre política colombiana del día {fecha_str}.
-Debes redactar un resumen enfocado en todo lo que se diga sobre Sergio Fajardo:
+Debes redactar un resumen enfocado en todo lo que se diga sobre Sergio Fajardo.
+Debes redactar EXACTAMENTE TRES PÁRRAFOS CONTINUOS (sin títulos, sin encabezados, sin numeración):
 
- Párrafo 1 – Noticia más repetida sobre Sergio Fajardo
-- Resume la noticia más repetida en los titulares  del día sobre Sergio Fajardo. Presenta todo el contexto de la misma así como los diferentes enfoques mencionados en las noticias del día, incluyendo el contexto de días previos relacionados con esa noticia si los hay.
+- En el primer párrafo, desarrolla la noticia más repetida del día sobre Sergio Fajardo, explicando su contexto y los distintos enfoques de los medios.
+- En el segundo párrafo, desarrolla la segunda noticia más repetida sobre Sergio Fajardo. Si no hay una segunda noticia claramente diferenciada, integra aquí el resto de menciones relevantes del día.
+- En el tercer párrafo, desarrolla la tercera noticia más repetida sobre Sergio Fajardo. Si no existe una tercera noticia claramente diferenciada, utiliza este párrafo para cerrar el panorama general del día.
 
- Párrafo 2 – Segunda noticia más repetida sobre Sergio Fajardo (si es que la hay) y/o resto de noticias.
-- Resume la segunda noticia más repetida en los titulares del día sobre Sergio Fajardo, presentando todo el contexto de la misma e incluyendo el contexto de días previos relacionados con esa noticia si los hay.
-- Si no hay una segunda noticia que sea repetida más allá de la primera, acá nombra el resto de notas en las que fue mencionado.
-
- Párrafo 3 - Tercera noticia más repetida sobre Sergio Fajardo (si es que la hay) y/o resto de noticias.
-- Resume la tercera noticia más repetida en los titulares del día sobre Sergio Fajardo, presentando todo el contexto de la misma e incluyendo el contexto de días previos relacionados con esa noticia si los hay.
-- Si no hay una segunda noticia que sea repetida más allá de la primera, acá nombra el resto de notas en las que fue mencionado.
-
+IMPORTANTE:
+- No escribas títulos, encabezados ni etiquetas como “Párrafo 1”, “Párrafo 2” o similares.
+- El resultado final debe ser texto corrido, separado únicamente por saltos de línea entre párrafos.
 
 Reglas generales:
 - Extensión total hasta 400 palabras.
