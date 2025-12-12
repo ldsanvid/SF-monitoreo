@@ -967,7 +967,7 @@ Debes redactar EXACTAMENTE TRES PÁRRAFOS CONTINUOS (sin títulos, sin encabezad
 
 - En el primer párrafo, menciona la noticia más repetida del día sobre Sergio Fajardo, explicando su contexto y los distintos enfoques de los medios.
 - En el segundo párrafo, menciona la segunda noticia más repetida sobre Sergio Fajardo solo si es diferente de la primera. Si no hay una segunda noticia claramente diferenciada (ejemplo, si ves noticias hablando de consultas interpartidistas, deben ir en el mismo párrafo), integra aquí el resto de menciones relevantes del día y termina ahí y utiliza este párrafo para cerrar el panorama general del día.
-- En el tercer párrafo, desarrolla la tercera noticia más repetida sobre Sergio Fajardo si es que la hay y es diferente de la primera y segunda. Si no existe una tercera noticia claramente diferenciada, utiliza este párrafo para cerrar el panorama general del día.
+- En el tercer párrafo, desarrolla la tercera noticia más repetida sobre Sergio Fajardo si es que la hay y es diferente de la primera y segunda. Si no existe una tercera noticia claramente diferenciada, que no haya tercer párrafo y concluye en el segundo.
 
 IMPORTANTE:
 - No escribas títulos, encabezados ni etiquetas como “Párrafo 1”, “Párrafo 2” o similares.
