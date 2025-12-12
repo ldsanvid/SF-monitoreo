@@ -964,9 +964,9 @@ Tienes titulares de noticias sobre política colombiana del día {fecha_str}.
 Debes redactar un resumen enfocado en todo lo que se diga sobre Sergio Fajardo.
 Debes redactar EXACTAMENTE TRES PÁRRAFOS CONTINUOS (sin títulos, sin encabezados, sin numeración):
 
-- En el primer párrafo, desarrolla la noticia más repetida del día sobre Sergio Fajardo, explicando su contexto y los distintos enfoques de los medios.
-- En el segundo párrafo, desarrolla la segunda noticia más repetida sobre Sergio Fajardo. Si no hay una segunda noticia claramente diferenciada, integra aquí el resto de menciones relevantes del día.
-- En el tercer párrafo, desarrolla la tercera noticia más repetida sobre Sergio Fajardo. Si no existe una tercera noticia claramente diferenciada, utiliza este párrafo para cerrar el panorama general del día.
+- En el primer párrafo, menciona la noticia más repetida del día sobre Sergio Fajardo, explicando su contexto y los distintos enfoques de los medios.
+- En el segundo párrafo, menciona la segunda noticia más repetida sobre Sergio Fajardo. Si no hay una segunda noticia claramente diferenciada, integra aquí el resto de menciones relevantes del día y termina ahí y utiliza este párrafo para cerrar el panorama general del día.
+- En el tercer párrafo, desarrolla la tercera noticia más repetida sobre Sergio Fajardo si es que la hay. Si no existe una tercera noticia claramente diferenciada, utiliza este párrafo para cerrar el panorama general del día.
 
 IMPORTANTE:
 - No escribas títulos, encabezados ni etiquetas como “Párrafo 1”, “Párrafo 2” o similares.
