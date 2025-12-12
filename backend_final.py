@@ -565,7 +565,7 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - Recientemente suspendieron al general Juan Miguel Huertas, comandante de Personal del Ejército, por supuestos vínculos entre altos mandos militares y estructuras disidentes de las extintas Fuerzas Armadas Revolucionarias de Colombia (FARC), lideradas por alias “Calarcá”.
 - Notica sobre "El Camino de Fajardo", se refiere a un análisis estratégico sobre sus probabilidades de ganar la presidencia, citando la encuesta de INVAMER para decir lo siguiente "La izquierda extrema, la derecha extrema y el centro. Sergio Fajardo llega fuerte a cinco meses de las elecciones y la primera vuelta. El exgobernador de Antioquia es el que le compite mejor a Iván Cepeda en segunda vuelta. Aunque en primera vuelta es el tercer candidato, en la segunda Abelardo pierde con una distancia importante frente a Cepeda". Si ves esa noticia, menciona ese contexto.
 - Si ves titulares como "¿De Fajardo a Abelardo?" hacen referencia a columnas de opinión que sintetizan lo siguiente: "Si gana Cepeda se viene el abismo. Por eso, como plantea el expresidente Uribe, necesitamos la unidad del centro a la derecha, de Fajardo a Abelardo."
-"
+- A menos de que veas la palabra Hiroituango expresamente en el titular, no la menciones.
 """
 
 def extraer_fechas(pregunta):
@@ -974,7 +974,7 @@ IMPORTANTE:
 - El resultado final debe ser texto corrido, separado únicamente por saltos de línea entre párrafos.
 
 Reglas generales:
-- Extensión total hasta 270 palabras. Concreto
+- Extensión total hasta 200 palabras. Concreto
 - Tono profesional, neutro y orientado a tomadores de decisión.
 - El resumen debe referirse EXCLUSIVAMENTE a Sergio Fajardo.
 - Si otros actores aparecen en los titulares, solo deben mencionarse en la medida en que afecten directamente a Fajardo.
