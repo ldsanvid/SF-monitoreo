@@ -32,6 +32,8 @@ from langchain_community.vectorstores import FAISS as LCFAISS
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+import hashlib
+
 
 
 def nombre_mes(fecha):
@@ -508,6 +510,11 @@ def _json_sanitize(x):
         return bool(x)
     return x
 
+# ------------------------------
+# 🔧 Modo de selección de titulares
+# ------------------------------
+MODO_SOLO_FAJARDO = True        # ✅ lo que quieres hoy
+MAX_TOTAL_BLOQUES = 12          # por si algún día vuelves al modo bloques
 
 
 # ------------------------------
@@ -684,15 +691,14 @@ def generar_nube(titulos, archivo_salida):
     texto = re.sub(r"[\n\r]", " ", texto)
     stopwords = set([
         "dice", "tras", "pide", "va", "día", "Colombia", "elección", "elecciones", "contra", "países",
-        "van", "ser", "hoy", "año", "años", "nuevo", "nueva", "será", "presidente", "presidenta",
+        "van", "ser", "hoy", "año", "años", "nuevo", "nueva", "será",
         "sobre", "entre", "hasta", "donde", "desde", "como", "pero", "también", "porque", "cuando",
         "ya", "con", "sin", "del", "los", "las", "que", "una", "por", "para", "este", "esta", "estos",
         "estas", "tiene", "tener", "fue", "fueron", "hay", "han", "son", "quien", "quienes", "le",
         "se", "su", "sus", "lo", "al", "el", "en", "y", "a", "de", "un", "es", "si", "quieren", "aún",
         "mantiene", "buscaría", "la", "haciendo", "recurriría", "ante", "meses", "están", "subir",
         "ayer", "prácticamente", "sustancialmente", "busca", "cómo", "qué", "días", "construcción","tariffs",
-        "aranceles","construcción", "Sergio","así", "no", "congreso","Gustavo","irá",
-        "Consejo Nacional Electoral","CNE", "Elección","Gustavo Petro", "Petro", "Elecciones","Coalición", "Coaliciones"
+        "aranceles","construcción", "Sergio","así", "no","Fajardo","irá", 
     ])
     wc = WordCloud(
         width=800,
@@ -704,18 +710,64 @@ def generar_nube(titulos, archivo_salida):
         max_words=25
     ).generate(texto)
     wc.to_file(archivo_salida)
+    
+def seleccionar_titulares_categorizados(noticias_dia, max_total=None):
+        """
+        Selecciona titulares SOLO de Sergio Fajardo (Término == "Sergio Fajardo"),
+        priorizando los más repetidos del día.
+
+        - Si max_total es None: devuelve TODOS (sin límite).
+        - Si max_total es número: devuelve hasta max_total.
+        """
+
+        if noticias_dia is None or noticias_dia.empty:
+            return []
+
+        # 1) Filtrar SOLO Fajardo por columna Término
+        if "Término" not in noticias_dia.columns:
+            return []
+
+        df_fajardo = noticias_dia[
+            noticias_dia["Término"].astype(str).str.strip().str.lower() == "sergio fajardo"
+        ].copy()
+
+        if df_fajardo.empty:
+            return []
+
+        # 2) Normalizar títulos y calcular repetición
+        df_fajardo["titulo_norm"] = (
+            df_fajardo["Título"].fillna("").astype(str).str.strip().str.lower()
+        )
+
+        # conteo por título (repetidos arriba)
+        conteos = df_fajardo["titulo_norm"].value_counts()
+
+        # 3) Para cada título, tomar una fila representativa (la primera) y adjuntar conteo
+        filas = []
+        for titulo_norm, c in conteos.items():
+            fila = df_fajardo[df_fajardo["titulo_norm"] == titulo_norm].iloc[0]
+            filas.append({
+                "titulo": str(fila.get("Título", "")).strip(),
+                "medio": str(fila.get("Fuente", "")).strip(),
+                "enlace": fila.get("Enlace", ""),
+                "_conteo": int(c),
+            })
+
+        # 4) Orden final: más repetidos primero; desempate por medio
+        filas.sort(key=lambda x: (-x["_conteo"], x["medio"]))
+
+        # 5) Quitar campo interno y aplicar límite si existe
+        seleccion = [{"titulo": f["titulo"], "medio": f["medio"], "enlace": f["enlace"]} for f in filas]
+
+        if isinstance(max_total, int) and max_total > 0:
+            return seleccion[:max_total]
+
+        return seleccion
 
 def generar_resumen_y_datos(fecha_str):
     """
     Genera el resumen diario, la nube de palabras y la selección de titulares,
-    ahora con estructura temática obligatoria en 5 párrafos:
-
-    1) Sergio Fajardo
-    2) Otros candidatos (que no sean Fajardo ni Petro, ni temas puramente
-       institucionales como CNE, Registraduría, elecciones o coaliciones)
-    3) Partidos políticos / elecciones / coaliciones / senado / cámara de representantes 
-    4) Gustavo Petro
-    5) CNE / Consejo Nacional Electoral / Registraduría
+    ahora con estructura temática obligatoria en hasta 3 párrafos, todos orientados a Sergio Fajardo:
 
     Mantiene:
     - Cache en /resumenes/resumen_{fecha}.txt
@@ -728,8 +780,52 @@ def generar_resumen_y_datos(fecha_str):
     # Normalizar fecha y filtrar noticias del día
     fecha_dt = pd.to_datetime(fecha_str, errors="coerce").date()
     noticias_dia = df[df["Fecha"].dt.date == fecha_dt]
+        # =============================================================================
+    # FIRMA DEL DATASET DEL DÍA (para detectar cambios en las noticias)
+    # =============================================================================
+    import hashlib
+
+    titulos_dia = (
+        noticias_dia["Título"]
+        .fillna("")
+        .str.strip()
+        .sort_values()
+        .tolist()
+    )
+
+    firma_str = "||".join(titulos_dia)
+    firma_dataset = hashlib.md5(firma_str.encode("utf-8")).hexdigest()
+
     if noticias_dia.empty:
         return {"error": f"No hay noticias para la fecha {fecha_str}"}
+        # =============================================================================
+    # 🔥 PREPARAR TITULARES + NUBE DESDE EL INICIO (para que existan antes de guardar metadata)
+    # =============================================================================
+    os.makedirs("nubes", exist_ok=True)
+    archivo_nube = f"nube_{fecha_str}.png"
+    archivo_nube_path = os.path.join("nubes", archivo_nube)
+
+    # Selección de titulares (modo cliente: todos los del día cuyo Término == "Sergio Fajardo")
+    titulares_relacionados = []
+    if "Término" in noticias_dia.columns:
+        df_fajardo_termino = noticias_dia[
+            noticias_dia["Término"].astype(str).str.strip().str.lower() == "sergio fajardo"
+        ]
+    else:
+        df_fajardo_termino = noticias_dia.iloc[0:0]
+
+    for _, row in df_fajardo_termino.iterrows():
+        titulares_relacionados.append({
+            "titulo": row.get("Título", ""),
+            "medio": row.get("Fuente", ""),
+            "enlace": row.get("Enlace", "")
+        })
+
+    titulares_info = seleccionar_titulares_categorizados(noticias_dia, max_total=None)
+
+    # Nube del día (con todos los títulos del día, o si prefieres solo los de fajardo, me dices)
+    generar_nube(df_fajardo_termino["Título"].tolist(), archivo_nube_path)
+
 
     # =============================================================================
     # 1️⃣ MÁSCARAS TEMÁTICAS
@@ -802,13 +898,13 @@ def generar_resumen_y_datos(fecha_str):
                 lineas.append(f"- {titulo}")
 
         # Limitar a ~10–12 líneas para que el contexto sea manejable
-        return "\n".join(lineas[:12])
+        return "\n".join(lineas)
 
     contexto_fajardo = construir_contexto(mask_fajardo, "Sergio Fajardo")
-    contexto_petro = construir_contexto(mask_petro, "Gustavo Petro")
-    contexto_cne = construir_contexto(mask_cne, "el CNE / Consejo Nacional Electoral / Registraduría")
-    contexto_otros = construir_contexto(mask_otros_candidatos, "otros candidatos distintos a Fajardo y Petro")
-    contexto_partidos = construir_contexto(mask_partidos, "partidos políticos , coaliciones y congreso")
+    #contexto_petro = construir_contexto(mask_petro, "Gustavo Petro")
+    #contexto_cne = construir_contexto(mask_cne, "el CNE / Consejo Nacional Electoral / Registraduría")
+    #contexto_otros = construir_contexto(mask_otros_candidatos, "otros candidatos distintos a Fajardo y Petro")
+    #contexto_partidos = construir_contexto(mask_partidos, "partidos políticos , coaliciones y congreso")
 
     # También podemos construir un contexto general con todas las noticias del día
     contexto_todas = "\n".join(
@@ -863,53 +959,33 @@ def generar_resumen_y_datos(fecha_str):
 {CONTEXTO_POLITICO}
 
 Tienes titulares de noticias sobre política colombiana del día {fecha_str}.
-Debes redactar un resumen dividido en CINCO PÁRRAFOS, en este orden:
+Debes redactar un resumen enfocado en todo lo que se diga sobre Sergio Fajardo:
 
- Párrafo 1 – Sergio Fajardo
-- Explica qué se dijo sobre Sergio Fajardo en los titulares del día.
-- Si hay varias notas, sintetiza los ejes principales (campaña, críticas, alianzas, escándalos, encuestas, etc.).
-- Si no hubo notas, dilo explícitamente y vincúlalo brevemente con el contexto general del día.
+ Párrafo 1 – Noticia más repetida sobre Sergio Fajardo
+- Resume la noticia más repetida en los titulares  del día sobre Sergio Fajardo. Presenta todo el contexto de la misma así como los diferentes enfoques mencionados en las noticias del día, incluyendo el contexto de días previos relacionados con esa noticia si los hay.
 
- Párrafo 2 – Otros candidatos
-- Resume qué se dijo sobre otros candidatos diferentes a Fajardo y Petro.
-- Incluye nombres, cargos y tipo de cobertura (propuestas, polémicas, encuestas, alianzas, etc.).
-- No incluyas aquí temas puramente institucionales (CNE, reglas electorales) ni noticias centradas en Petro, ni en partidos políticos.
+ Párrafo 2 – Segunda noticia más repetida sobre Sergio Fajardo (si es que la hay) y/o resto de noticias.
+- Resume la segunda noticia más repetida en los titulares del día sobre Sergio Fajardo, presentando todo el contexto de la misma e incluyendo el contexto de días previos relacionados con esa noticia si los hay.
+- Si no hay una segunda noticia que sea repetida más allá de la primera, acá nombra el resto de notas en las que fue mencionado.
 
- Párrafo 3 - Partidos políticos, coaliciones y Congreso
-- Resume qué se dijo sobre partidos políticos, sus presidentes (Álvaro Uribe, César Gaviria, Simón Gaviria, Manuel Virgüez, Ana Paola Agudelo, Jorge Robledo, Antonio Navarro Wolff, Clara Luz Roldán), coaliciones, cámara de representantes, senado y elecciones en general.
-- Incluye nombres, cargos, instituciones y tipo de cobertura (propuestas, polémicas, alianzaas, etc.).
-- No incluyas aquí temas puramente institucionales (CNE, reglas electorales) ni noticias centradas en Petro, ni en Sergio Fajardo ni en otros candidatos.
+ Párrafo 3 - Tercera noticia más repetida sobre Sergio Fajardo (si es que la hay) y/o resto de noticias.
+- Resume la tercera noticia más repetida en los titulares del día sobre Sergio Fajardo, presentando todo el contexto de la misma e incluyendo el contexto de días previos relacionados con esa noticia si los hay.
+- Si no hay una segunda noticia que sea repetida más allá de la primera, acá nombra el resto de notas en las que fue mencionado.
 
- Párrafo 4 – Gustavo Petro
-- Sintetiza lo más relevante sobre Gustavo Petro: decisiones de gobierno, debates, controversias o impactos políticos.
-- Señala si las notas lo presentan de forma crítica, favorable o mixta, sin adjetivos militantes.
-
- Párrafo 5 – CNE / Consejo Nacional Electoral / Registraduría
-- Explica qué se dijo sobre el CNE: decisiones, sanciones, reglamentos, debates internos o controversias, así como de la Registraduría
-- Si no hubo notas directas sobre el CNE o la Registraduría, menciónalo e indica si hay temas electorales que lo rodeen indirectamente.
 
 Reglas generales:
-- Extensión total entre 250 y 500 palabras.
+- Extensión total hasta 400 palabras.
 - Tono profesional, neutro y orientado a tomadores de decisión.
-- Puedes hacer referencias cruzadas entre párrafos (por ejemplo, cómo decisiones del CNE afectan a Fajardo u otros candidatos),
-  pero sin repetir texto ni copiar frases.
+- El resumen debe referirse EXCLUSIVAMENTE a Sergio Fajardo.
+- Si otros actores aparecen en los titulares, solo deben mencionarse en la medida en que afecten directamente a Fajardo.
+- No desarrolles secciones ni narrativas independientes sobre otros candidatos, el presidente, partidos o autoridades electorales.
 - Prioriza siempre lo ocurrido el {fecha_str}; el contexto de días previos solo sirve para dar continuidad a las narrativas.
 - NO inventes hechos ni extrapoles más allá de lo que sugieren los titulares.
 
-Bloque 1 – Sergio Fajardo:
+Bloque – Sergio Fajardo:
 {contexto_fajardo}
 
-Bloque 2 – Otros candidatos:
-{contexto_otros}
 
-Bloque 3 – Partidos políticos, coaliciones y Congreso:
-{contexto_partidos}
-
-Bloque 4 – Gustavo Petro:
-{contexto_petro}
-
-Bloque 5 - CNE / Consejo Nacional Electoral / Registraduría:
-{contexto_cne}
 
 Contexto general del día (todas las noticias):
 {contexto_todas}
@@ -919,25 +995,133 @@ Contexto general del día (todas las noticias):
     # 5️⃣ CACHE DE RESUMEN EN /resumenes
     # =============================================================================
     os.makedirs("resumenes", exist_ok=True)
-    archivo_resumen = os.path.join("resumenes", f"resumen_{fecha_str}.txt")
+    archivo_resumen = os.path.join(
+        "resumenes",
+        f"resumen_{fecha_str}.txt"
+    )
 
-    if os.path.exists(archivo_resumen):
+    # -----------------------------------------------------------------------------
+    # Archivo de firma del resumen (control de cambios del dataset)
+    # -----------------------------------------------------------------------------
+    archivo_firma = os.path.join(
+        "resumenes",
+        f"resumen_{fecha_str}_firma.txt"
+        )
+    # DECISIÓN: ¿REUTILIZAR RESUMEN O REHACER TODO?
+    # =============================================================================
+
+    rehacer_resumen = True
+
+    if os.path.exists(archivo_resumen) and os.path.exists(archivo_firma):
+        with open(archivo_firma, "r", encoding="utf-8") as f:
+            firma_guardada = f.read().strip()
+
+        if firma_guardada == firma_dataset:
+            rehacer_resumen = False
+
+
+    if not rehacer_resumen:
+        # -------------------------------------------------------------------------
+        # USAR RESUMEN EXISTENTE (dataset no cambió)
+        # -------------------------------------------------------------------------
         with open(archivo_resumen, "r", encoding="utf-8") as f:
             resumen_texto = f.read()
+
     else:
         respuesta = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Eres un analista experto en noticias y política colombiana."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "Eres un analista experto en noticias y política colombiana."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
             ],
             temperature=0.2,
             max_tokens=900
         )
-        resumen_texto = respuesta.choices[0].message.content
+
+        resumen_texto = respuesta.choices[0].message.content.strip()
+
+        # Guardar resumen nuevo
         with open(archivo_resumen, "w", encoding="utf-8") as f:
             f.write(resumen_texto)
 
+        # Guardar firma del dataset
+        with open(archivo_firma, "w", encoding="utf-8") as f:
+            f.write(firma_dataset)
+        # =============================================================================
+        # 9️⃣ EMBEDDINGS ACUMULATIVOS PARA RESÚMENES (FAISS)
+        # =============================================================================
+        try:
+            os.makedirs("faiss_index", exist_ok=True)
+            index_path = "faiss_index/resumenes_index.faiss"
+
+            # Generar embedding del resumen del día
+            emb = client.embeddings.create(
+                model="text-embedding-3-small",
+                input=resumen_texto.strip()
+            ).data[0].embedding
+            emb_np = np.array([emb], dtype="float32")
+
+            # Si el índice ya existe, cargarlo y agregar nuevo vector
+            if os.path.exists(index_path):
+                index = faiss.read_index(index_path)
+                index.add(emb_np)
+                print(f"🧩 Embedding agregado al índice existente ({index.ntotal} vectores totales)")
+            else:
+                dim = len(emb_np[0])
+                index = faiss.IndexFlatL2(dim)
+                index.add(emb_np)
+                print("🆕 Índice FAISS de resúmenes creado")
+
+            faiss.write_index(index, index_path)
+            print("💾 Guardado resumenes_index.faiss actualizado")
+
+            r2_upload("resumenes_index.faiss")
+            print("☁️ Subido resumenes_index.faiss a S3")
+
+        except Exception as e:
+            print(f"⚠️ Error al actualizar embeddings de resúmenes: {e}")
+        # =============================================================================
+        # 8️⃣ GUARDAR / ACTUALIZAR resumenes_metadata.csv Y SUBIR A S3
+        # =============================================================================
+        try:
+            os.makedirs("faiss_index", exist_ok=True)
+            resumen_meta_path = "faiss_index/resumenes_metadata.csv"
+
+            df_resumen = pd.DataFrame([{
+                "fecha": str(fecha_dt),
+                "archivo_txt": f"resumen_{fecha_str}.txt",
+                "nube": archivo_nube,
+                "titulares": len(titulares_info),
+                "resumen": resumen_texto.strip()
+            }])
+
+            # Si ya existe el archivo, lo leemos y agregamos (sin duplicar fechas)
+            if os.path.exists(resumen_meta_path):
+                df_prev = pd.read_csv(resumen_meta_path)
+            else:
+                df_prev = pd.DataFrame(columns=["fecha", "archivo_txt", "nube", "titulares", "resumen"])
+
+            if str(fecha_dt) not in df_prev["fecha"].astype(str).values:
+                df_total = pd.concat([df_prev, df_resumen], ignore_index=True)
+                print(f"🆕 Agregado nuevo resumen para {fecha_dt}")
+            else:
+                print(f"♻️ Reemplazando resumen existente para {fecha_dt}")
+                df_resumen = df_resumen.reindex(columns=df_prev.columns)
+                df_prev.loc[df_prev["fecha"].astype(str) == str(fecha_dt), df_prev.columns] = df_resumen.values[0]
+                df_total = df_prev
+
+            df_total.to_csv(resumen_meta_path, index=False, encoding="utf-8")
+            print(f"💾 Guardado local de resumenes_metadata.csv con {len(df_total)} fila(s) totales")
+            r2_upload("resumenes_metadata.csv")
+            print("☁️ Subido resumenes_metadata.csv a S3")
+        except Exception as e:
+            print(f"⚠️ No se pudo guardar/subir resumenes_metadata.csv: {e}")
     # =============================================================================
     # 6️⃣ SELECCIÓN DE TITULARES ALINEADOS A LOS 5 BLOQUES DEL RESUMEN
     # =============================================================================
@@ -945,265 +1129,44 @@ Contexto general del día (todas las noticias):
         return re.sub(r"[^a-zA-ZáéíóúñÁÉÍÓÚüÜ0-9 ]", "", str(texto).lower())
 
     resumen_limpio = limpiar(resumen_texto)
-
-    def seleccionar_titulares_categorizados(
-        noticias_dia,
-        mask_fajardo,
-        mask_otros_candidatos,
-        mask_partidos,
-        mask_petro,
-        mask_cne,
-        resumen_limpio,
-        max_total=12,
-    ):
-        """
-        Selecciona titulares priorizando que haya representación de los 5 bloques:
-        - Fajardo
-        - Otros candidatos
-        - Partidos / coaliciones / congreso
-        - Petro
-        - CNE / Registraduría
-
-        PRIORIZA SIEMPRE las noticias MÁS REPETIDAS (mismo titular repetido en el día).
-        Si no alcanza, complementa con:
-        - Títulos que aparezcan (aprox.) en el resumen.
-        - Titulares más repetidos del día, aunque no estén ligados a un bloque específico.
-        """
-        # Precalcular frecuencia de cada título en TODO el día
-        noticias_freq = noticias_dia.copy()
-        noticias_freq["titulo_norm"] = (
-            noticias_freq["Título"]
-            .fillna("")
-            .astype(str)
-            .str.strip()
-            .str.lower()
-        )
-        noticias_freq["conteo"] = (
-            noticias_freq.groupby("titulo_norm")["titulo_norm"].transform("size")
-        )
-
-        bloques = [
-            ("Fajardo", mask_fajardo, 3),
-            ("Otros candidatos", mask_otros_candidatos, 3),
-            ("Partidos/coaliciones", mask_partidos, 2),
-            ("Petro", mask_petro, 2),
-            ("CNE/Registraduría", mask_cne, 2),
-        ]
-
-        seleccion = []
-        vistos_medios = set()
-
-        # 1️⃣ Selección por bloques temáticos, priorizando los títulos más repetidos
-        for nombre_bloque, mask, cuota in bloques:
-            subset = noticias_freq[mask].copy()
-            if subset.empty:
-                continue
-
-            # Ordenar: más repetidos primero; como desempate, fuente alfabética
-            subset = subset.sort_values(
-                by=["conteo", "Fuente"],
-                ascending=[False, True]
-            )
-
-            count_bloque = 0
-            for _, row in subset.iterrows():
-                titulo = str(row.get("Título", "")).strip()
-                medio = (row.get("Fuente") or "").strip()
-                enlace = row.get("Enlace")
-
-                if not titulo:
-                    continue
-
-                # Evitar repetir medios
-                if medio and medio in vistos_medios:
-                    continue
-
-                seleccion.append({
-                    "titulo": titulo,
-                    "medio": medio,
-                    "enlace": enlace,
-                })
-                if medio:
-                    vistos_medios.add(medio)
-
-                count_bloque += 1
-                if count_bloque >= cuota or len(seleccion) >= max_total:
-                    break
-
-            if len(seleccion) >= max_total:
-                break
-
-        # 2️⃣ Fallback: titulares que aparezcan en el resumen (coincidencia aproximada),
-        # también priorizando los más repetidos
-        if len(seleccion) < 3:
-            subset_resumen = noticias_freq.copy()
-            subset_resumen = subset_resumen.sort_values(
-                by=["conteo", "Fuente"],
-                ascending=[False, True]
-            )
-
-            for _, row in subset_resumen.iterrows():
-                titulo_original = str(row.get("Título", "")).strip()
-                if not titulo_original:
-                    continue
-
-                medio = (row.get("Fuente") or "").strip()
-                enlace = row.get("Enlace")
-
-                if medio and medio in vistos_medios:
-                    continue
-
-                titulo_limpio = limpiar(titulo_original)
-                # Si parte del título aparece en el resumen, lo consideramos relevante
-                if any(palabra in resumen_limpio for palabra in titulo_limpio.split()[:4]):
-                    seleccion.append({
-                        "titulo": titulo_original,
-                        "medio": medio,
-                        "enlace": enlace,
-                    })
-                    if medio:
-                        vistos_medios.add(medio)
-
-                    if len(seleccion) >= max_total:
-                        break
-
-        # 3️⃣ Fallback final: rellenar con los titulares MÁS REPETIDOS del día
-        if len(seleccion) < 3:
-            subset_global = noticias_freq.sort_values(
-                by=["conteo", "Fuente"],
-                ascending=[False, True]
-            )
-            for _, row in subset_global.iterrows():
-                titulo_original = str(row.get("Título", "")).strip()
-                if not titulo_original:
-                    continue
-
-                medio = (row.get("Fuente") or "").strip()
-                enlace = row.get("Enlace")
-
-                if medio and medio in vistos_medios:
-                    continue
-
-                seleccion.append({
-                    "titulo": titulo_original,
-                    "medio": medio,
-                    "enlace": enlace,
-                })
-                if medio:
-                    vistos_medios.add(medio)
-
-                if len(seleccion) >= max_total:
-                    break
-
-        return seleccion[:max_total]
+        
     
-    # Usar la función de selección categorizada
-    titulares_relacionados = seleccionar_titulares_categorizados(
-        noticias_dia,
-        mask_fajardo,
-        mask_otros_candidatos,
-        mask_partidos,
-        mask_petro,
-        mask_cne,
-        resumen_limpio,
-        max_total=12,
-    )
 
-    # Evitar repetir medios por seguridad extra (aunque ya lo controlamos arriba)
-    def filtrar_sin_repetir_medios(lista_titulares):
-        vistos = set()
-        filtrados = []
-        for t in lista_titulares:
-            medio = (t.get("medio") or "").strip()
-            if medio and medio not in vistos:
-                filtrados.append(t)
-                vistos.add(medio)
-        return filtrados
+    
+    # MODO CLIENTE: SOLO TITULARES CON Término == "Sergio Fajardo"
+    # =============================================================================
+    # 6️⃣ TITULARES: MOSTRAR TODOS LOS DEL DÍA CON Término == "Sergio Fajardo"
+    # =============================================================================
+    #titulares_relacionados = []
 
-    titulares_relacionados = filtrar_sin_repetir_medios(titulares_relacionados)
-    titulares_relacionados = titulares_relacionados[:12]
+    #if "Término" in noticias_dia.columns:
+        #df_fajardo_termino = noticias_dia[
+            #noticias_dia["Término"].astype(str).str.strip().str.lower() == "sergio fajardo"
+        #]
+    #else:
+        #df_fajardo_termino = noticias_dia.iloc[0:0]  # vacío si no existe la columna
+
+    #for _, row in df_fajardo_termino.iterrows():
+        #titulares_relacionados.append({
+            #"titulo": row.get("Título", ""),
+            #"medio": row.get("Fuente", ""),
+            #"enlace": row.get("Enlace", "")
+        #})
+
+    # ✅ Sin filtrar por medio, y sin recortar a 12 (el cliente pidió TODOS)
+
 
 
     # =============================================================================
     # 7️⃣ GENERAR NUBE DE PALABRAS
     # =============================================================================
-    os.makedirs("nubes", exist_ok=True)
-    archivo_nube = f"nube_{fecha_str}.png"
-    archivo_nube_path = os.path.join("nubes", archivo_nube)
-    generar_nube(noticias_dia["Título"].tolist(), archivo_nube_path)
+    #os.makedirs("nubes", exist_ok=True)
+    #archivo_nube = f"nube_{fecha_str}.png"
+    #archivo_nube_path = os.path.join("nubes", archivo_nube)
+    #generar_nube(noticias_dia["Título"].tolist(), archivo_nube_path)
 
-    titulares_info = titulares_relacionados
+    #titulares_info = titulares_relacionados
 
-    # =============================================================================
-    # 8️⃣ GUARDAR / ACTUALIZAR resumenes_metadata.csv Y SUBIR A S3
-    # =============================================================================
-    try:
-        os.makedirs("faiss_index", exist_ok=True)
-        resumen_meta_path = "faiss_index/resumenes_metadata.csv"
-
-        df_resumen = pd.DataFrame([{
-            "fecha": str(fecha_dt),
-            "archivo_txt": f"resumen_{fecha_str}.txt",
-            "nube": archivo_nube,
-            "titulares": len(titulares_info),
-            "resumen": resumen_texto.strip()
-        }])
-
-        # Si ya existe el archivo, lo leemos y agregamos (sin duplicar fechas)
-        if os.path.exists(resumen_meta_path):
-            df_prev = pd.read_csv(resumen_meta_path)
-        else:
-            df_prev = pd.DataFrame(columns=["fecha", "archivo_txt", "nube", "titulares", "resumen"])
-
-        if str(fecha_dt) not in df_prev["fecha"].astype(str).values:
-            df_total = pd.concat([df_prev, df_resumen], ignore_index=True)
-            print(f"🆕 Agregado nuevo resumen para {fecha_dt}")
-        else:
-            print(f"♻️ Reemplazando resumen existente para {fecha_dt}")
-            df_resumen = df_resumen.reindex(columns=df_prev.columns)
-            df_prev.loc[df_prev["fecha"].astype(str) == str(fecha_dt), df_prev.columns] = df_resumen.values[0]
-            df_total = df_prev
-
-        df_total.to_csv(resumen_meta_path, index=False, encoding="utf-8")
-        print(f"💾 Guardado local de resumenes_metadata.csv con {len(df_total)} fila(s) totales")
-        r2_upload("resumenes_metadata.csv")
-        print("☁️ Subido resumenes_metadata.csv a S3")
-    except Exception as e:
-        print(f"⚠️ No se pudo guardar/subir resumenes_metadata.csv: {e}")
-
-    # =============================================================================
-    # 9️⃣ EMBEDDINGS ACUMULATIVOS PARA RESÚMENES (FAISS)
-    # =============================================================================
-    try:
-        os.makedirs("faiss_index", exist_ok=True)
-        index_path = "faiss_index/resumenes_index.faiss"
-
-        # Generar embedding del resumen del día
-        emb = client.embeddings.create(
-            model="text-embedding-3-small",
-            input=resumen_texto.strip()
-        ).data[0].embedding
-        emb_np = np.array([emb], dtype="float32")
-
-        # Si el índice ya existe, cargarlo y agregar nuevo vector
-        if os.path.exists(index_path):
-            index = faiss.read_index(index_path)
-            index.add(emb_np)
-            print(f"🧩 Embedding agregado al índice existente ({index.ntotal} vectores totales)")
-        else:
-            dim = len(emb_np[0])
-            index = faiss.IndexFlatL2(dim)
-            index.add(emb_np)
-            print("🆕 Índice FAISS de resúmenes creado")
-
-        faiss.write_index(index, index_path)
-        print("💾 Guardado resumenes_index.faiss actualizado")
-
-        r2_upload("resumenes_index.faiss")
-        print("☁️ Subido resumenes_index.faiss a S3")
-
-    except Exception as e:
-        print(f"⚠️ Error al actualizar embeddings de resúmenes: {e}")
 
     # =============================================================================
     # 🔚 RETORNO
