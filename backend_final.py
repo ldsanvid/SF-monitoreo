@@ -1884,6 +1884,43 @@ def enviar_email():
     msg["To"] = destinatario
     msg["Subject"] = f"Resumen de noticias {fecha_str}"
 
+    # 🧱 Titulares en tabla: máximo 4 por fila (compatible con Gmail/Outlook)
+    titulares_cards = []
+    for t in titulares_info:
+        titulo = (t.get("titulo") or "").strip()
+        medio = (t.get("medio") or "").strip()
+        enlace = (t.get("enlace") or "").strip()
+
+        card = f"""
+        <div style="padding:10px; border:1px solid #ddd; border-radius:12px; background:#fff; height:100%;">
+            <a href="{enlace}" style="color:#0B57D0; font-weight:600; text-decoration:none;">
+                {titulo}
+            </a>
+            <br>
+            <small style="color:#7D7B78;">• {medio}</small>
+        </div>
+        """
+        titulares_cards.append(card)
+
+    filas_html = []
+    for i in range(0, len(titulares_cards), 4):
+        fila = titulares_cards[i:i+4]
+
+        # celdas de la fila
+        tds = "".join([f'<td style="width:25%; padding:6px; vertical-align:top;">{c}</td>' for c in fila])
+
+        # si faltan celdas para completar 4, rellenar con vacías
+        faltan = 4 - len(fila)
+        if faltan > 0:
+            tds += "".join(['<td style="width:25%; padding:6px;"></td>' for _ in range(faltan)])
+
+        filas_html.append(f"<tr>{tds}</tr>")
+
+    titulares_es_html = f"""
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:20px; border-collapse:collapse;">
+        {''.join(filas_html)}
+    </table>
+    """
 
     # 📧 Plantilla HTML con estilo
     cuerpo = f"""
@@ -1916,6 +1953,7 @@ def enviar_email():
 
         <!-- Titulares español -->
         <h3 style="font-size:1.15rem; font-weight:700; color:#555; margin-top:20px;">🗞️ Principales titulares</h3>
+        {titulares_es_html}
         <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
             {''.join([
                 f"<div style='padding:10px; border:1px solid #ddd; border-radius:12px; background:#fff; max-width:100%; "
