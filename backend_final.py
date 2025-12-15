@@ -681,13 +681,16 @@ def filtrar_titulares(df_filtrado, entidades, sentimiento_deseado):
     return filtro
 
 # 7️⃣ Nube de palabras con colores y stopwords personalizadas
+import random
+
 def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
-    if font_size >= 60:
-        return "rgb(255, 205, 0)"
-    elif font_size >= 40:
-        return "rgb(0, 48, 135)"
-    else:
-        return "rgb(200, 16, 46)"
+    colores = [
+        "rgb(255, 205, 0)",  # amarillo
+        "rgb(0, 48, 135)",   # azul
+        "rgb(200, 16, 46)"   # rojo
+    ]
+    return random.choice(colores)
+
 
 def generar_nube(titulos, archivo_salida):
     texto = " ".join(titulos)
@@ -2070,9 +2073,9 @@ def enviar_telegram():
         titulares_block = "• (No hay titulares para mostrar)"
 
     msg = (
-        f"<b>📅 Resumen diario — {escape_html(fecha_str)}</b>\n\n"
+        f"📅 Resumen diario — {escape_html(fecha_str)}\n\n"
         f"{resumen_html}\n\n"
-        f"<b>🗞️ Principales titulares</b>\n"
+        f"🗞️ Principales titulares\n"
         f"{titulares_block}"
     )
 
