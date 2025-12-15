@@ -1995,8 +1995,8 @@ def telegram_send_message(bot_token: str, chat_id: str, text: str):
     payload = {
         "chat_id": chat_id,
         "text": text,
-        "disable_web_page_preview": True,
-        "parse_mode": "HTML",
+        "disable_web_page_preview": False
+        # ❌ NO parse_mode
     }
     r = requests.post(url, json=payload, timeout=25)
     r.raise_for_status()
@@ -2058,7 +2058,7 @@ def enviar_telegram():
         enlace = (t.get("enlace") or "").strip()
 
         if enlace:
-            line = f'• <a href="{enlace}">{titulo}</a> <i>({medio})</i>'
+            line = f"• {titulo} ({medio})\n  {enlace}"
         else:
             line = f'• {titulo} <i>({medio})</i>'
 
