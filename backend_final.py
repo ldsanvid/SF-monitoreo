@@ -25,7 +25,7 @@ from babel.dates import format_date
 from s3_utils import s3_download_all as r2_download_all, s3_upload as r2_upload
 import numpy as np
 import faiss
-
+import requests
 # LangChain / RAG
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS as LCFAISS
@@ -544,7 +544,7 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - El 8 de marzo de 2026 se llevarán a cabo las elecciones legislativas en Colombia, donde se eligirán a los miembros de ambas cámaras del Congreso de Colombia para el periodo 2026-2030.
 - El 26 de octubre de 2025 se realizó la consulta presidencial del Pacto Histórico (movimiento político de Gustavo Petro) para escoger el candidato del partido a la presidencia en las elecciones presidenciales de Colombia de 2026. El ganador de la consulta fue el senador Iván Cepeda, obteniendo formalmente el aval para aspirar a la Presidencia de la República.
 - El Partido Movimiento de Salvación Nacional respaldó a Abelardo de la Espriella como precandidato, quien a principios de diciembre de 2025 entregó alrededor de 5 millones de firmas ante la Registraduría para inscribir su candidatura a la Presidencia de Colombia.
-- El Partido Dignidad y Compromiso será representado por Sergio Fajardo. 
+- El Partido Dignidad y Compromiso será representado por Sergio Fajardo, exalcalde de Medellín, exgobernador de Antioquia y candidato presidncial en 2018 y 2022. Fajardo al igual que Abelardo de la Espriella declinaron participar en consultas interpartidistas, y dicidieron ir directo a la primera vuelta presidencial.
 - El Partido Nuevo Liberalismo será representado por Juan Manuel Galán.
 - El Partido Verde será representado por Juan Carlos Pinzón, quien también recibió el apoyo del partido político Alianza Democrática Amplia.
 - El Partido Fuerza de la Paz será representado por Roy Barreras.
@@ -562,9 +562,9 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - SIC es la Superintendencia de Industria y Comercio.
 - Hidroituango es un megaproyecto hidroeléctrico en Antioquia, Colombia, desarrollado por EPM en la que el organismo de control declaró responsables fiscales a 26 personas, incluyendo al Sergio Fajardo, quien fue gobernador cuando se planeó la obra, por los errores que llevaron al colapso de la obra en 2018 debido a obstrucciones generalizadas en los túneles de desviación del río Cauca. La obra terminó pero con retrasos.
 - En una serie de videos publicados por el también precandidato presidencial y excontralor de la república Carlos Felipe Córdoba, se evidencia como Sergio Fajardo fue uno de los responsables del desastre de Hidroituango y se relata todo lo sucedido con el proyecto. Fajardo había pedido a la SIC bloquear temporalmente el video publicado por Córdoba porque usa su voz e imagen sin su autorización.
-- Recientemente suspendieron al general Juan Miguel Huertas, comandante de Personal del Ejército, por supuestos vínculos entre altos mandos militares y estructuras disidentes de las extintas Fuerzas Armadas Revolucionarias de Colombia (FARC), lideradas por alias “Calarcá”.
-- Notica sobre "El Camino de Fajardo", se refiere a un análisis estratégico sobre sus probabilidades de ganar la presidencia, citando la encuesta de INVAMER para decir lo siguiente "La izquierda extrema, la derecha extrema y el centro. Sergio Fajardo llega fuerte a cinco meses de las elecciones y la primera vuelta. El exgobernador de Antioquia es el que le compite mejor a Iván Cepeda en segunda vuelta. Aunque en primera vuelta es el tercer candidato, en la segunda Abelardo pierde con una distancia importante frente a Cepeda". Si ves esa noticia, menciona ese contexto.
-- Si ves titulares como "¿De Fajardo a Abelardo?" hacen referencia a columnas de opinión que sintetizan lo siguiente: "Si gana Cepeda se viene el abismo. Por eso, como plantea el expresidente Uribe, necesitamos la unidad del centro a la derecha, de Fajardo a Abelardo."
+- Si ves titulares como "Fajardo es el hombre" hacen referencia a columnas de opinión que sintetizan lo siguiente: "A Sergio Fajardo se lo ha criticado por “tibio”, por excesivamente conciliador y por no haber sido capaz de aprovechar el gran prestigio personal y político del que gozaba hace algunos años para consolidar una candidatura presidencial, que dejó desplomar por sus ambivalencias. Pero hay quienes aprenden y salen fortalecidos de sus errores, y es lo que hoy está demostrando un Fajardo cada vez más afirmativo, enérgico y seguro de sí mismo. Tanto, que descarta consultas, prefiere ir solo y ha defendido con coherencia esta decisión. Hay otros aspirantes con sobradas capacidades para ocupar la jefatura del Estado, pero hay que ser realistas y entender cuál es la figura que necesita la Colombia de aquí y de ahora. Créanme que Sergio Fajardo es el hombre."
+- Si ves titulares como "Fajardo debe ser el próximo presidente de Colombia", hacen referencia a columnas de opinión que sintetizan lo siguiente: "Fajardo no agrede, no ofende al adversario, sabe administrar, respeta el carácter sagrado de los recursos públicos.   La tercera será la vencida"
+- Si ves titulares como "Respaldo a propuesta de Fajardo de definir el candidato por encuestas", hacen referencia a notas que sintetizan lo siguiente: "Justamente, la propuesta de reemplazar una consulta por un sistema de encuestas o una “alternativa” para ir decantando las opciones y unificar fuerzas, la planteó Sergio Fajardo. Esto recibió cierto respaldo del expresidente Álvaro Uribe, lo que muestra la fragmentación de la derecha y de la centroderecha para elegir candidato y hacerle contrapeso a la candidatura de izquierda de Iván Cepeda, que hasta el momento es el que puntea."
 - A menos de que veas la palabra Hiroituango expresamente en el titular, no la menciones.
 """
 
@@ -1987,7 +1987,120 @@ def enviar_email():
     except Exception as e:
     
         return jsonify({"mensaje": f"❌ Error al enviar correo: {e}"})
+def escape_html(s: str) -> str:
+    return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
+def telegram_send_message(bot_token: str, chat_id: str, text: str):
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "disable_web_page_preview": True,
+        "parse_mode": "HTML",
+    }
+    r = requests.post(url, json=payload, timeout=25)
+    r.raise_for_status()
+    return r.json()
+
+def telegram_send_photo(bot_token: str, chat_id: str, photo_path: str, caption: str = ""):
+    url = f"https://api.telegram.org/bot{bot_token}/sendPhoto"
+    with open(photo_path, "rb") as f:
+        files = {"photo": f}
+        data = {
+            "chat_id": chat_id,
+            "caption": (caption or "")[:1024],
+            "parse_mode": "HTML",
+        }
+        r = requests.post(url, data=data, files=files, timeout=60)
+        r.raise_for_status()
+        return r.json()
+
+@app.route("/enviar_telegram", methods=["POST"])
+def enviar_telegram():
+    data = request.get_json() or {}
+    fecha_str = (data.get("fecha") or "").strip()
+    chat_id = (data.get("chat_id") or os.environ.get("TELEGRAM_CHAT_ID_DEFAULT") or "").strip()
+
+    if not fecha_str:
+        return jsonify({"mensaje": "❌ Debes enviar 'fecha' (YYYY-MM-DD)."}), 400
+
+    if not chat_id:
+        return jsonify({"mensaje": "❌ Debes enviar 'chat_id' o configurar TELEGRAM_CHAT_ID_DEFAULT."}), 400
+
+    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    if not bot_token:
+        return jsonify({"mensaje": "❌ Falta TELEGRAM_BOT_TOKEN en variables de entorno."}), 500
+
+    # 1) Generar resumen y datos (igual que email)
+    resultado = generar_resumen_y_datos(fecha_str)
+    if "error" in resultado:
+        return jsonify({"mensaje": resultado["error"]}), 404
+
+    resumen_texto = (resultado.get("resumen") or "").strip()
+    titulares_info = resultado.get("titulares", []) or []
+
+    # 2) Construir mensaje (calca lógica de enviar_email, pero adaptada a Telegram)
+    # - Respetar párrafos (como en email)
+    # - Mandar TODOS los titulares (no solo 8)
+    # - Formatear titulares en filas de 4 (texto/HTML simple de Telegram)
+
+    resumen_texto = (resultado.get("resumen") or "").strip()
+
+    # 🔹 En email conviertes saltos a <br>; en Telegram usamos \n\n para párrafos
+    # (escape_html para no romper parse_mode HTML)
+    resumen_html = escape_html(resumen_texto).replace("\n\n", "\n\n").replace("\n", "\n")
+
+    # Titulares (TODOS, como email)
+    titulares_lines = []
+    for t in titulares_info:
+        titulo = escape_html((t.get("titulo") or "").strip())
+        medio = escape_html((t.get("medio") or "").strip())
+        enlace = (t.get("enlace") or "").strip()
+
+        if enlace:
+            line = f'• <a href="{enlace}">{titulo}</a> <i>({medio})</i>'
+        else:
+            line = f'• {titulo} <i>({medio})</i>'
+
+        titulares_lines.append(line)
+
+    if titulares_lines:
+        titulares_block = "\n".join(titulares_lines)
+    else:
+        titulares_block = "• (No hay titulares para mostrar)"
+
+    msg = (
+        f"<b>📅 Resumen diario — {escape_html(fecha_str)}</b>\n\n"
+        f"{resumen_html}\n\n"
+        f"<b>🗞️ Principales titulares</b>\n"
+        f"{titulares_block}"
+    )
+
+    # 3) Enviar texto (Telegram limita ~4096 chars; lo partimos)
+    try:
+        MAX = 3500
+        for i in range(0, len(msg), MAX):
+            telegram_send_message(bot_token, chat_id, msg[i:i+MAX])
+    except Exception as e:
+        return jsonify({"mensaje": f"❌ Error enviando mensaje a Telegram: {e}"}), 500
+
+    # 4) Enviar nube como foto (si existe)
+    try:
+        archivo_nube = os.path.join("nubes", f"nube_{fecha_str}.png")
+        if os.path.exists(archivo_nube):
+            telegram_send_photo(
+                bot_token,
+                chat_id,
+                archivo_nube,
+                caption=f"☁️ Nube de palabras — {escape_html(fecha_str)}"
+            )
+        else:
+            print(f"⚠️ No existe la nube: {archivo_nube}")
+    except Exception as e:
+        # No fallamos todo si la foto falla; solo lo reportamos
+        print(f"⚠️ Error enviando foto a Telegram: {e}")
+
+    return jsonify({"mensaje": f"✅ Enviado a Telegram (chat_id={chat_id})"})
 
 
 @app.route("/nube/<filename>")
