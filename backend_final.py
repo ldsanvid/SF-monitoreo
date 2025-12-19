@@ -522,10 +522,6 @@ MAX_TOTAL_BLOQUES = 12          # por si algún día vuelves al modo bloques
 # ------------------------------
 CONTEXTO_POLITICO = """
 Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen prioridad sobre cualquier otra fuente o conocimiento previo. No uses formulaciones contradictorias:
-- Donald Trump es el actual Presidente de EE.UU, fue reelecto en 2024.
-- Claudia Sheinbaum es la Presidenta de México, fue electa en 2024.
-- Howard Lutnick es el actual Secretario de Comercio de Estados Unidos.
-- Marco Rubio es el actual Secretario de Estado de Estados Unidos.
 - Francia Márquez es la actual Vicepresidenta de Colombia, electa en 2022.
 - Armando Benedetti es el actual Ministro de Interior de Colombia, desde el 1 de marzo de 2025.
 - Rosa Villavicencio es la actual Ministra de Relaciones Exteriores de Colombia, desde el 9 de julio de 2025.
@@ -533,8 +529,6 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - Pedro Sánchez es el actual Ministro de Defensa de Colombia, en el cargo desde el 11 de febrero de 2025.
 - Edwin Palma es el actual Ministro de Minas y Energía de Colombia, en el cargo desde el 25 de febrero de 2025. 
 - Luz Adriana Camargo es la actual fiscal general de Colombia.
-- Scott Bessent es el actual Secretario del Tesoro de Estados Unidos.
-- Javier Milei es el actual Presidente de Argentina.
 - Cristian Quiroz es el Magistrado y Presidente del Consejo Nacional Electoral de Colombia.
 - Hernán Penagos Giraldo es el actual Director General de la Registraduría Nacional del Estado Civil de Colombia.
 - Gustavo Petro es el actual Presidente de Colombia, en el cargo desde 2022 y hasta 2026.
@@ -550,20 +544,21 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - El Partido Fuerza de la Paz será representado por Roy Barreras.
 - El Partido En Marcha será representado por Juan Fernando Cristo.
 - Juan Daniel Oviedo es un precandidato presidencial, exdirector del Departamento Administrativo Nacional de Estadística de Colombia (DANE). Es de ideología centrista.
+- Daniel Palacios es un precandidato presidencial, ex ministro del Interior.
 - Vicky Dávila es una conocida periodista y precandidata presidencial. Es de ideología de derecha.
 - Camilo Romero es precandidato presidencial y exgobernador del departamento de Nariño.
 - El Partido Centro Democrático oficializó este 15 de diciembre a Paloma Valencia como su candidata presidencial.
-- Nicolás Petro es el hijo mayor de Gustavo Petro, quien está en medio de un proceso judicial bajo las acusaciones de lavado de dinero y enriquecimiento ilícito proveniente del narcotráfico el cual tenía como objetivo el financiamiento de la campaña presidencial de su padre.
-- La Paz Total es una política de Estado implementada por el gobierno de Gustavo Petro en Colombia, que busca acabar el conflicto armado negociando con diversos grupos armados ilegales abriendo canales con diferentes grupos armados para buscar su desmovilización, acogimiento a la justicia o sometimiento.
 - El 30 de noviembre de 2025 se publicó una encuesta de INVAMER que muestra a Iván Cepeda con 31.9% de la intención de voto, Abelardo De La Espriella con 18.2% y Sergio Fajardo con 8.5%. El resto de precandidatos registra menos intención de voto que la opción del voto en blanco.
 - En la encuesta de INVAMER del 30 de noviembre, en el escenario de segunda vuelta que enfrente a Cepeda contra De la Espriella, Cepeda saca 59.1%, y De la Espriella 36.2%. Enun esceneario de Cepeda contra Fajardo, Cepeda se queda en 48.9% y Fajardo en 46.4%. En un escenario de Fajardo contra De la Espriella, Fajardo gana con 51.7% mientras que De la Espriella se queda en 38.9%.
 - SIC es la Superintendencia de Industria y Comercio.
 - Hidroituango es un megaproyecto hidroeléctrico en Antioquia, Colombia, desarrollado por EPM en la que el organismo de control declaró responsables fiscales a 26 personas, incluyendo al Sergio Fajardo, quien fue gobernador cuando se planeó la obra, por los errores que llevaron al colapso de la obra en 2018 debido a obstrucciones generalizadas en los túneles de desviación del río Cauca. La obra terminó pero con retrasos.
 - En una serie de videos publicados por el también precandidato presidencial y excontralor de la república Carlos Felipe Córdoba, se evidencia como Sergio Fajardo fue uno de los responsables del desastre de Hidroituango y se relata todo lo sucedido con el proyecto. Fajardo había pedido a la SIC bloquear temporalmente el video publicado por Córdoba porque usa su voz e imagen sin su autorización.
-- Si ves el titular: "Seducir a Uribe y aislar a Fajardo: la apuesta de la consulta de centroderecha ", hace referencia a un análisis del medio La Silla Vacía que sintetiza lo siguiente: "Si ningún precandidato de “La Gran Consulta Por Colombia” (consulta interpartidista que incluye a los precandidatos Mauricio Cárdenas, Vicky Dávila, Juan Manuel Galán, Aníbal Gaviria, David Luna y Juan Daniel Oviedo) se baja antes del 6 de febrero, Fajardo se quedará solo. Así, la única alternativa que le quedaría al candidato para hacer equipo sería la de traicionar su primera estrategia y unirse a la coalición, que todavía no le ha cerrado la puerta...los candidatos de esta nueva alianza ya rechazaron la idea de Fajardo de medirse en una encuesta...Él no ha aprendido que una sola persona no puede sacar a Colombia adelante, dijo gente de Vicky Dávila".
+- los precandidatos Mauricio Cárdenas, David Luna, Vicky Dávila, Juan Manuel Galán, Aníbal Gaviria y Juan Daniel Oviedo se medirán en una consulta interpartidista llamada "Gran Consulta por Colombia" que será en marzo de 2026 para elegir a un candidato que represente a la centro-derecha.
+- Si ves el titular: "El eterno reencauche de Fajardo, un tipo tibio pero con buenas ideas", hace referencia a una columna de opinión del medio Las 2 Orillas que sintetiza lo siguiente: "Reencauchar a Sergio Fajardo en momentos en que la ultraderecha tiene por candidato al rábula, vocinglero y charlatán no es una mala idea. No votaría por Fajardo, pero indiscutiblemente es un tipo coherente con sus ideas, que lo han llevado a candidatizarse por tercera vez. Ha sido fiel y consecuente con los principios que rigen su carrera política. Le huye al ambiente polarizado, pero brinda propuestas serias en lugar de atacar permanentemente a Petro como único recurso. Es ecléctico y dubitativo; quizá por lo anterior es etiquetado como tibio."
 - Si ves el titular: "Cepeda vs. Fajardo: ¿la final probable?", hace referencia a una columna de opinión del medio El Cronista que sintetiza lo siguiente: "Una eventual final entre Iván Cepeda y Sergio Fajardo comienza a tomar fuerza y a volverse una posibilidad real. Hace apenas un mes era “poco probable”. Esa final sería positiva para la política colombiana, no veo a ninguno de ellos sacándole los ojos al otro, ni destripándose ni dándose balín...Ser el candidato con posibilidades de disputarle la presidencia a Cepeda es el principal activo de Fajardo, por ello pulveriza a Claudia López, Enrique Peñalosa y Juan Daniel Oviedo— quienes le siguen en intención de voto (refiriéndose a encuesta de INVAMER)...La vieja guardia de la política colombiana está en quiebra, no tiene candidatos con capacidad de ilusionar, y sus jefes naturales, sus ahijados y acólitos tecnócratas están sobregirados. Si Fajardo pasa a segunda vuelta, todo el antipetrismo se subiría en su bus sin mayores compromisos".
 - Si ves el titular: "Alejandro Gaviria se destapó sobre el hecho de haber sido descartado por el Nuevo Liberalismo: Yo iba a ser la cabeza de lista", hace referencia a una noticia de que El exministro de Salud y Educación Alejandro Gaviria no fue elegido para encabezar la lista al Senado por la coalición Ahora Colombia, integrada por el Nuevo Liberalismo, Dignidad y Compromiso y el partido Mira, y que de acuerdo a Gaviria, Sergio Fajardo fue muy pasivo cuando el líder de Dignidad y Compromiso, Jorge Robledo, le bloqueó esa posibilidad a Gaviria. 
 - A menos de que veas la palabra Hiroituango expresamente en el titular, no la menciones.
+
 """
 
 def extraer_fechas(pregunta):
@@ -963,12 +958,14 @@ def generar_resumen_y_datos(fecha_str):
 {CONTEXTO_POLITICO}
 
 Tienes titulares de noticias sobre política colombiana del día {fecha_str}.
-Debes redactar un resumen enfocado en todo lo que se diga sobre Sergio Fajardo.
+Debes redactar un resumen enfocado en todo lo que se diga sobre Sergio Fajardo y el centro ideológico.
 Debes redactar EXACTAMENTE TRES PÁRRAFOS CONTINUOS (sin títulos, sin encabezados, sin numeración):
 
 - En el primer párrafo, menciona la noticia más repetida del día sobre Sergio Fajardo, explicando su contexto y los distintos enfoques de los medios.
 - En el segundo párrafo, menciona la segunda noticia más repetida sobre Sergio Fajardo solo si es diferente de la primera. Si no hay una segunda noticia claramente diferenciada (ejemplo, si ves noticias hablando de consultas interpartidistas, deben ir en el mismo párrafo), integra aquí el resto de menciones relevantes del día. Si no hay más menciones relevantes del día, que no haya segundo párrafo y conclye con el primero.
 - En el tercer párrafo, desarrolla la tercera noticia más repetida sobre Sergio Fajardo si es que la hay y es diferente de la primera y segunda. Si no existe una tercera noticia claramente diferenciada, que no haya tercer párrafo y concluye en el segundo.
+- En el cuarto párrafo, desarrolla las noticias que haya sobre el Centro (ideológicamente hablando), que son aquellas con la palabra Centro en la columna de término.
+- 
 
 IMPORTANTE:
 - No escribas títulos, encabezados ni etiquetas como “Párrafo 1”, “Párrafo 2” o similares.
