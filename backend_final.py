@@ -726,9 +726,44 @@ def seleccionar_titulares_categorizados(noticias_dia, max_total=None):
         if "Término" not in noticias_dia.columns:
             return []
 
-        df_fajardo = noticias_dia[
-            noticias_dia["Término"].astype(str).str.strip().str.lower() == "sergio fajardo"
+        # 1) Filtrar Fajardo + Centro por columna Término
+        if "Término" not in noticias_dia.columns:
+            return []
+
+        terminos = noticias_dia["Término"].astype(str).str.strip().str.lower()
+
+        df_sel = noticias_dia[
+            (terminos == "sergio fajardo") | (terminos.str.contains(r"\bcentro\b", na=False))
         ].copy()
+
+        if df_sel.empty:
+            return []
+
+        # 2) Normalizar títulos y calcular repetición
+        df_sel["titulo_norm"] = (
+            df_sel["Título"].fillna("").astype(str).str.strip().str.lower()
+        )
+
+        conteos = df_sel["titulo_norm"].value_counts()
+
+        filas = []
+        for titulo_norm, c in conteos.items():
+            fila = df_sel[df_sel["titulo_norm"] == titulo_norm].iloc[0]
+            filas.append({
+                "titulo": str(fila.get("Título", "")).strip(),
+                "medio": str(fila.get("Fuente", "")).strip(),
+                "enlace": fila.get("Enlace", ""),
+                "_conteo": int(c),
+            })
+
+        filas.sort(key=lambda x: (-x["_conteo"], x["medio"]))
+        seleccion = [{"titulo": f["titulo"], "medio": f["medio"], "enlace": f["enlace"]} for f in filas]
+
+        if isinstance(max_total, int) and max_total > 0:
+            return seleccion[:max_total]
+
+        return seleccion
+
 
         if df_fajardo.empty:
             return []
@@ -804,26 +839,21 @@ def generar_resumen_y_datos(fecha_str):
     archivo_nube = f"nube_{fecha_str}.png"
     archivo_nube_path = os.path.join("nubes", archivo_nube)
 
-    # Selección de titulares (modo cliente: todos los del día cuyo Término == "Sergio Fajardo")
-    titulares_relacionados = []
+    # ✅ Filtrar Fajardo + Centro (para nube y para cualquier lista derivada)
     if "Término" in noticias_dia.columns:
-        df_fajardo_termino = noticias_dia[
-            noticias_dia["Término"].astype(str).str.strip().str.lower() == "sergio fajardo"
-        ]
+        terminos = noticias_dia["Término"].astype(str).str.strip().str.lower()
+        df_sel = noticias_dia[
+            (terminos == "sergio fajardo") | (terminos.str.contains(r"\bcentro\b", na=False))
+        ].copy()
     else:
-        df_fajardo_termino = noticias_dia.iloc[0:0]
+        df_sel = noticias_dia.iloc[0:0].copy()
 
-    for _, row in df_fajardo_termino.iterrows():
-        titulares_relacionados.append({
-            "titulo": row.get("Título", ""),
-            "medio": row.get("Fuente", ""),
-            "enlace": row.get("Enlace", "")
-        })
-
+    # Titulares (ya lo estás devolviendo con tu función)
     titulares_info = seleccionar_titulares_categorizados(noticias_dia, max_total=None)
 
-    # Nube del día (con todos los títulos del día, o si prefieres solo los de fajardo, me dices)
-    generar_nube(df_fajardo_termino["Título"].tolist(), archivo_nube_path)
+    # ☁️ Nube: ahora SOLO con Fajardo + Centro
+    generar_nube(df_sel["Título"].fillna("").astype(str).tolist(), archivo_nube_path)
+
 
 
     # =============================================================================
