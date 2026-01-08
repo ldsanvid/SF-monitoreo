@@ -513,14 +513,35 @@ def _json_sanitize(x):
 # ------------------------------
 # 🔧 Modo de selección de titulares
 # ------------------------------
-MODO_SOLO_FAJARDO = True        # ✅ lo que quieres hoy
+MODO_SOLO_FAJARDO = False        # ✅ lo que quieres hoy
 MAX_TOTAL_BLOQUES = 12          # por si algún día vuelves al modo bloques
 
+def filtrar_por_scope(noticias_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Aplica el alcance del producto según MODO_SOLO_FAJARDO.
+    - True  -> Solo Término == 'Sergio Fajardo'
+    - False -> Término == 'Sergio Fajardo' o contiene 'centro'
+    """
+    if noticias_df is None or noticias_df.empty:
+        return noticias_df.iloc[0:0].copy()
+
+    if "Término" not in noticias_df.columns:
+        return noticias_df.iloc[0:0].copy()
+
+    terminos = noticias_df["Término"].astype(str).str.strip().str.lower()
+
+    if MODO_SOLO_FAJARDO:
+        return noticias_df[terminos == "sergio fajardo"].copy()
+
+    return noticias_df[
+        (terminos == "sergio fajardo") |
+        (terminos.str.contains(r"\bcentro\b", na=False))
+    ].copy()
 
 # ------------------------------
-# 📜 Contexto político único
+# 🧭 Contexto para /pregunta (guardrails mínimos)
 # ------------------------------
-CONTEXTO_POLITICO = """
+CONTEXTO_PREGUNTA_GUARDRAILS = """
 Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen prioridad sobre cualquier otra fuente o conocimiento previo. No uses formulaciones contradictorias:
 - Francia Márquez es la actual Vicepresidenta de Colombia, electa en 2022.
 - Armando Benedetti es el actual Ministro de Interior de Colombia, desde el 1 de marzo de 2025.
@@ -535,6 +556,12 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - El DAPRE es DEPARTAMENTO ADMINISTRATIVO PRESIDENCIA DE LA REPÚBLICA de Colombia. Angie Rodríguez es la directora.
 - El 31 de mayo de 2026 se llevará a cabo la primera vuelta de la elección presidencial en Colombia.
 - El 21 de julio de 2026 se llevará a cabo la segunda vuelta de la elección presidencial en Colombia.
+- A menos de que veas la palabra Hiroituango expresamente en el titular, no la menciones.
+"""
+# ------------------------------
+# 🗳️ Contexto Electoral 2026 (tu bitácora viva)
+# ------------------------------
+CONTEXTO_POLITICO = """
 - El 8 de marzo de 2026 se llevarán a cabo las elecciones legislativas en Colombia, donde se eligirán a los miembros de ambas cámaras del Congreso de Colombia para el periodo 2026-2030.
 - El 26 de octubre de 2025 se realizó la consulta presidencial del Pacto Histórico (movimiento político de izquierda de Gustavo Petro) para escoger el candidato del partido a la presidencia en las elecciones presidenciales de Colombia de 2026. El ganador de la consulta fue el senador Iván Cepeda, obteniendo formalmente el aval para aspirar a la Presidencia de la República.
 - El Partido Movimiento de Salvación Nacional, de derecha, respaldó a Abelardo de la Espriella como precandidato, quien a principios de diciembre de 2025 entregó alrededor de 5 millones de firmas ante la Registraduría para inscribir su candidatura a la Presidencia de Colombia.
@@ -553,11 +580,7 @@ Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen 
 - SIC es la Superintendencia de Industria y Comercio.
 - Hidroituango es un megaproyecto hidroeléctrico en Antioquia, Colombia, desarrollado por EPM en la que el organismo de control declaró responsables fiscales a 26 personas, incluyendo al Sergio Fajardo, quien fue gobernador cuando se planeó la obra, por los errores que llevaron al colapso de la obra en 2018 debido a obstrucciones generalizadas en los túneles de desviación del río Cauca. La obra terminó pero con retrasos.
 - En una serie de videos publicados por el también precandidato presidencial y excontralor de la república Carlos Felipe Córdoba, se evidencia como Sergio Fajardo fue uno de los responsables del desastre de Hidroituango y se relata todo lo sucedido con el proyecto. Fajardo había pedido a la SIC bloquear temporalmente el video publicado por Córdoba porque usa su voz e imagen sin su autorización.
-- los precandidatos Mauricio Cárdenas, David Luna, Vicky Dávila, Juan Manuel Galán, Aníbal Gaviria y Juan Daniel Oviedo se medirán en una consulta interpartidista llamada "Gran Consulta por Colombia" que será en marzo de 2026 para elegir a un candidato que represente a la centro-derecha.
-- Si ves el titular: "El eterno reencauche de Fajardo, un tipo tibio pero con buenas ideas", hace referencia a una columna de opinión del medio Las 2 Orillas que sintetiza lo siguiente: "Reencauchar a Sergio Fajardo en momentos en que la ultraderecha tiene por candidato al rábula, vocinglero y charlatán no es una mala idea. No votaría por Fajardo, pero indiscutiblemente es un tipo coherente con sus ideas, que lo han llevado a candidatizarse por tercera vez. Ha sido fiel y consecuente con los principios que rigen su carrera política. Le huye al ambiente polarizado, pero brinda propuestas serias en lugar de atacar permanentemente a Petro como único recurso. Es ecléctico y dubitativo; quizá por lo anterior es etiquetado como tibio."
-- Si ves el titular: "Cepeda vs. Fajardo: ¿la final probable?", hace referencia a una columna de opinión del medio El Cronista que sintetiza lo siguiente: "Una eventual final entre Iván Cepeda y Sergio Fajardo comienza a tomar fuerza y a volverse una posibilidad real. Hace apenas un mes era “poco probable”. Esa final sería positiva para la política colombiana, no veo a ninguno de ellos sacándole los ojos al otro, ni destripándose ni dándose balín...Ser el candidato con posibilidades de disputarle la presidencia a Cepeda es el principal activo de Fajardo, por ello pulveriza a Claudia López, Enrique Peñalosa y Juan Daniel Oviedo— quienes le siguen en intención de voto (refiriéndose a encuesta de INVAMER)...La vieja guardia de la política colombiana está en quiebra, no tiene candidatos con capacidad de ilusionar, y sus jefes naturales, sus ahijados y acólitos tecnócratas están sobregirados. Si Fajardo pasa a segunda vuelta, todo el antipetrismo se subiría en su bus sin mayores compromisos".
-- Si ves el titular: "Alejandro Gaviria se destapó sobre el hecho de haber sido descartado por el Nuevo Liberalismo: Yo iba a ser la cabeza de lista", hace referencia a una noticia de que El exministro de Salud y Educación Alejandro Gaviria no fue elegido para encabezar la lista al Senado por la coalición Ahora Colombia, integrada por el Nuevo Liberalismo, Dignidad y Compromiso y el partido Mira, y que de acuerdo a Gaviria, Sergio Fajardo fue muy pasivo cuando el líder de Dignidad y Compromiso, Jorge Robledo, le bloqueó esa posibilidad a Gaviria. 
-- A menos de que veas la palabra Hiroituango expresamente en el titular, no la menciones.
+- Los precandidatos Mauricio Cárdenas, David Luna, Vicky Dávila, Juan Manuel Galán, Aníbal Gaviria y Juan Daniel Oviedo se medirán en una consulta interpartidista llamada "Gran Consulta por Colombia" que será en marzo de 2026 para elegir a un candidato que represente a la centro-derecha.
 
 """
 
@@ -711,92 +734,69 @@ def generar_nube(titulos, archivo_salida):
     wc.to_file(archivo_salida)
 
 def seleccionar_titulares_categorizados(noticias_dia, max_total=None):
-        """
-        Selecciona titulares SOLO de Sergio Fajardo (Término == "Sergio Fajardo"),
-        priorizando los más repetidos del día.
+    """
+    Selecciona titulares asociados a:
+    - Sergio Fajardo
+    - Centro (ideológico)
 
-        - Si max_total es None: devuelve TODOS (sin límite).
-        - Si max_total es número: devuelve hasta max_total.
-        """
+    Prioriza los títulos más repetidos del día.
 
-        if noticias_dia is None or noticias_dia.empty:
-            return []
+    - Si max_total es None: devuelve TODOS.
+    - Si max_total es un entero > 0: limita el número de resultados.
+    """
 
-        # 1) Filtrar SOLO Fajardo por columna Término
-        if "Término" not in noticias_dia.columns:
-            return []
+    if noticias_dia is None or noticias_dia.empty:
+        return []
 
-        # 1) Filtrar Fajardo + Centro por columna Término
-        if "Término" not in noticias_dia.columns:
-            return []
+    if "Término" not in noticias_dia.columns:
+        return []
 
-        terminos = noticias_dia["Término"].astype(str).str.strip().str.lower()
+    df_sel = filtrar_por_scope(noticias_dia)
 
-        df_sel = noticias_dia[
-            (terminos == "sergio fajardo") | (terminos.str.contains(r"\bcentro\b", na=False))
-        ].copy()
-
-        if df_sel.empty:
-            return []
-
-        # 2) Normalizar títulos y calcular repetición
-        df_sel["titulo_norm"] = (
-            df_sel["Título"].fillna("").astype(str).str.strip().str.lower()
-        )
-
-        conteos = df_sel["titulo_norm"].value_counts()
-
-        filas = []
-        for titulo_norm, c in conteos.items():
-            fila = df_sel[df_sel["titulo_norm"] == titulo_norm].iloc[0]
-            filas.append({
-                "titulo": str(fila.get("Título", "")).strip(),
-                "medio": str(fila.get("Fuente", "")).strip(),
-                "enlace": fila.get("Enlace", ""),
-                "_conteo": int(c),
-            })
-
-        filas.sort(key=lambda x: (-x["_conteo"], x["medio"]))
-        seleccion = [{"titulo": f["titulo"], "medio": f["medio"], "enlace": f["enlace"]} for f in filas]
-
-        if isinstance(max_total, int) and max_total > 0:
-            return seleccion[:max_total]
-
-        return seleccion
+    if df_sel.empty:
+        return []
 
 
-        if df_fajardo.empty:
-            return []
+    # 2️⃣ Normalizar títulos para detectar repetición
+    df_sel["titulo_norm"] = (
+        df_sel["Título"]
+        .fillna("")
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
 
-        # 2) Normalizar títulos y calcular repetición
-        df_fajardo["titulo_norm"] = (
-            df_fajardo["Título"].fillna("").astype(str).str.strip().str.lower()
-        )
+    conteos = df_sel["titulo_norm"].value_counts()
 
-        # conteo por título (repetidos arriba)
-        conteos = df_fajardo["titulo_norm"].value_counts()
+    filas = []
+    for titulo_norm, conteo in conteos.items():
+        fila = df_sel[df_sel["titulo_norm"] == titulo_norm].iloc[0]
 
-        # 3) Para cada título, tomar una fila representativa (la primera) y adjuntar conteo
-        filas = []
-        for titulo_norm, c in conteos.items():
-            fila = df_fajardo[df_fajardo["titulo_norm"] == titulo_norm].iloc[0]
-            filas.append({
-                "titulo": str(fila.get("Título", "")).strip(),
-                "medio": str(fila.get("Fuente", "")).strip(),
-                "enlace": fila.get("Enlace", ""),
-                "_conteo": int(c),
-            })
+        filas.append({
+            "titulo": str(fila.get("Título", "")).strip(),
+            "medio": str(fila.get("Fuente", "")).strip(),
+            "enlace": fila.get("Enlace", ""),
+            "_conteo": int(conteo),
+        })
 
-        # 4) Orden final: más repetidos primero; desempate por medio
-        filas.sort(key=lambda x: (-x["_conteo"], x["medio"]))
+    # 3️⃣ Ordenar: más repetidos primero, luego por medio
+    filas.sort(key=lambda x: (-x["_conteo"], x["medio"]))
 
-        # 5) Quitar campo interno y aplicar límite si existe
-        seleccion = [{"titulo": f["titulo"], "medio": f["medio"], "enlace": f["enlace"]} for f in filas]
+    seleccion = [
+        {
+            "titulo": f["titulo"],
+            "medio": f["medio"],
+            "enlace": f["enlace"],
+        }
+        for f in filas
+    ]
 
-        if isinstance(max_total, int) and max_total > 0:
-            return seleccion[:max_total]
+    # 4️⃣ Aplicar límite si corresponde
+    if isinstance(max_total, int) and max_total > 0:
+        return seleccion[:max_total]
 
-        return seleccion
+    return seleccion
+
 
 def generar_resumen_y_datos(fecha_str):
     """
@@ -840,13 +840,9 @@ def generar_resumen_y_datos(fecha_str):
     archivo_nube_path = os.path.join("nubes", archivo_nube)
 
     # ✅ Filtrar Fajardo + Centro (para nube y para cualquier lista derivada)
-    if "Término" in noticias_dia.columns:
-        terminos = noticias_dia["Término"].astype(str).str.strip().str.lower()
-        df_sel = noticias_dia[
-            (terminos == "sergio fajardo") | (terminos.str.contains(r"\bcentro\b", na=False))
-        ].copy()
-    else:
-        df_sel = noticias_dia.iloc[0:0].copy()
+    # ✅ Scope único controlado por MODO_SOLO_FAJARDO
+    df_sel = filtrar_por_scope(noticias_dia)
+
 
     # Titulares (ya lo estás devolviendo con tu función)
     titulares_info = seleccionar_titulares_categorizados(noticias_dia, max_total=None)
@@ -980,44 +976,78 @@ def generar_resumen_y_datos(fecha_str):
 
 
     # =============================================================================
-    # 4️⃣ PROMPT CON 4 PÁRRAFOS OBLIGATORIOS
+    # 4️⃣ PROMPT CON HASTA 4 PÁRRAFOS (P4 solo si hay Centro)
     # =============================================================================
     prompt = f"""
 {CONTEXTO_ANTERIOR}
 
 {CONTEXTO_POLITICO}
+INSTRUCCIONES OBLIGATORIAS — LÉELAS TODAS ANTES DE ESCRIBIR
 
+ROL
+Eres un redactor técnico que elabora un BRIEF FACTUAL INTERNO.
+NO eres analista, NO eres columnista, NO haces interpretación ni contexto adicional.
+
+Debes redactar un resumen enfocado en:
+1) todo lo que se diga sobre Sergio Fajardo, y
+2) menciones al “centro” ideológico (cuando existan en el dataset, típicamente vía Término).
+
+REGLAS FUNDAMENTALES (PROHIBICIONES ABSOLUTAS)
+- Está TERMINANTEMENTE PROHIBIDO:
+  - Introducir el texto con frases generales como:
+    “Las noticias del día…”, “Las noticias de {fecha_str}…”, “Este día fue relevante…”
+  - Explicar por qué algo es importante, relevante, significativo o preocupante.
+  - Usar frases como:
+    “lo que implica”, “lo que refuerza”, “lo que podría”, “lo que resalta”, “esto es clave”, “esto podría ser”.
+  - Hacer inferencias, conclusiones, evaluaciones o lecturas políticas.
+  - Agregar contexto que NO esté explícitamente contenido en los titulares o que no esté dentro de {CONTEXTO_POLITICO}.
+
+  QUÉ SÍ PUEDES HACER
+- Limitarte estrictamente a TRANSCRIBIR DE FORMA SINTÉTICA lo que dicen los titulares.
+- Reescribir los hechos en prosa clara y neutra, sin calificarlos.
+- Usar únicamente información que esté explícita en los titulares listados.
+- Usar únicamente contexto que esté dentro de {CONTEXTO_POLITICO}
 Tienes titulares de noticias sobre política colombiana del día {fecha_str}.
-Debes redactar un resumen enfocado en todo lo que se diga sobre Sergio Fajardo y el centro ideológico.
-Debes redactar EXACTAMENTE TRES PÁRRAFOS CONTINUOS (sin títulos, sin encabezados, sin numeración):
 
-- En el primer párrafo, menciona la noticia más repetida del día sobre Sergio Fajardo, explicando su contexto y los distintos enfoques de los medios.
-- En el segundo párrafo, menciona la segunda noticia más repetida sobre Sergio Fajardo solo si es diferente de la primera. Si no hay una segunda noticia claramente diferenciada (ejemplo, si ves noticias hablando de consultas interpartidistas, deben ir en el mismo párrafo), integra aquí el resto de menciones relevantes del día. Si no hay más menciones relevantes del día, que no haya segundo párrafo y conclye con el primero.
-- En el tercer párrafo, desarrolla la tercera noticia más repetida sobre Sergio Fajardo si es que la hay y es diferente de la primera y segunda. Si no existe una tercera noticia claramente diferenciada, que no haya tercer párrafo y concluye en el segundo.
-- En el cuarto párrafo, desarrolla las noticias que haya sobre el Centro (ideológicamente hablando), que son aquellas con la palabra Centro en la columna de término.
-- 
+Debes redactar HASTA CUATRO PÁRRAFOS CONTINUOS (sin títulos, sin encabezados, sin numeración). 
+Solo escribe un párrafo si realmente hay material para ese párrafo; si no lo hay, NO lo escribas y concluye en el último párrafo válido.
 
-IMPORTANTE:
-- No escribas títulos, encabezados ni etiquetas como “Párrafo 1”, “Párrafo 2” o similares.
-- El resultado final debe ser texto corrido, separado únicamente por saltos de línea entre párrafos.
+Estructura:
+- Párrafo 1: el hecho o tema MÁS REPETIDO del día sobre Sergio Fajardo, redactado en prosa factual (qué pasó / qué se reportó).
+- Párrafo 2: el segundo hecho o tema más repetido sobre Sergio Fajardo, solo si es claramente diferente del primero; si no, integra aquí el resto de menciones relevantes sobre Fajardo.
+- Párrafo 3: una tercera hecho o tema sobre Fajardo solo si es claramente diferente de los anteriores; si no existe, no escribas este párrafo.
+- Párrafo 4 (solo si aplica): desarrolla lo que se diga del “Centro” ideológico (notas cuyo Término contenga “centro”). Si no hay notas de Centro, NO escribas este párrafo.
 
-Reglas generales:
-- Extensión total de hasta 150 palabras, pero puede ser menos si no hay mucho que decir. 
-- Tono profesional, neutro y orientado a tomadores de decisión.
-- El resumen debe referirse EXCLUSIVAMENTE a Sergio Fajardo.
-- Si otros actores aparecen en los titulares, solo deben mencionarse en la medida en que afecten directamente a Fajardo.
-- No desarrolles secciones ni narrativas independientes sobre otros candidatos, el presidente, partidos o autoridades electorales.
-- Prioriza siempre lo ocurrido el {fecha_str}; el contexto de días previos solo sirve para dar continuidad a las narrativas.
-- NO inventes hechos ni des tus interpretaciones extrapoles ni deduzcas más allá de lo que sugieren los titulares. Sol
+ESTILO
+- Lenguaje neutro, seco y factual.
+- NO expliques consecuencias.
+- NO relaciones hechos entre sí si los titulares no lo hacen explícitamente.
+- SÍ puedes agregar frases  de contexto SOLO si ese dato está explícitamente en {CONTEXTO_POLITICO} y sirve para entender el titular o desarrollarlo mejor (desambiguar actor, rol institucional, estado de intervención, naturaleza pública/privada, o marco regulatorio inmediato).
+- Está prohibido usar ese contexto para inferir consecuencias, evaluar, o decir por qué importa.
+
+USO PERMITIDO DEL {CONTEXTO_POLITICO} (SIN BARRERAS, PERO CONTROLADO)
+- Puedes insertar micro-contexto (máx. 3 frases por párrafo) tomado de {CONTEXTO_POLITICO} cuando aporte claridad inmediata.
+- Ese micro-contexto debe escribirse como HECHO, no como interpretación.
+Prohibido:
+  “Esto refuerza…”, “esto implica…”, “esto es clave…”, “podría provocar…”
+
+FORMATO
+- Texto corrido.
+- Separar párrafos únicamente con saltos de línea.
+- NO usar títulos, encabezados ni etiquetas.
+- NO usar listas ni viñetas.
+- NO usar Markdown.
+- Extensión: solo lo necesario para cubrir los hechos; si hay pocos titulares, el texto debe ser corto.
+- Prioriza siempre lo ocurrido el {fecha_str}; el contexto previo solo sirve para dar continuidad.
 
 Bloque – Sergio Fajardo:
 {contexto_fajardo}
 
-
-
 Contexto general del día (todas las noticias):
 {contexto_todas}
-    """
+"""
+
+    
 
     # =============================================================================
     # 5️⃣ CACHE DE RESUMEN EN /resumenes
@@ -1068,7 +1098,7 @@ Contexto general del día (todas las noticias):
                     "content": prompt
                 }
             ],
-            temperature=0.2,
+            temperature=0,
             max_tokens=900
         )
 
@@ -1811,8 +1841,26 @@ def pregunta():
         else:
             bloque_titulares = "No se encontraron titulares específicos, solo contexto general de resúmenes."
 
+        pregunta_lower = q.lower()
+
+# Meter contexto largo solo si la pregunta lo activa (sigue siendo "2 contextos")
+        keywords_electorales = [
+            "consulta", "interpartidista", "precandidato", "precandidatos", "coalición", "alianza",
+            "encuesta", "sondeo", "candidatura", "presidencial", "2026", "registraduría", "cne"
+                                ]
+        nombres_trigger = [
+            "mauricio cárdenas", "mauricio cardenas", "david luna", "vicky dávila", "vicky davila",
+            "juan manuel galán", "juan manuel galan", "aníbal gaviria", "anibal gaviria",
+            "juan daniel oviedo", "gran consulta por colombia", "ivan cepeda", "abelardo de la espriella", 
+            "de la espriella","cepeda"
+        ]
+
+        activar_contexto_largo = any(k in pregunta_lower for k in keywords_electorales) or any(n in pregunta_lower for n in nombres_trigger)
+        contexto_largo_condicional = CONTEXTO_POLITICO if activar_contexto_largo else ""
+
         # 🧠 6️⃣ Construir texto final para la chain de LangChain
-        texto_usuario = f"""{CONTEXTO_POLITICO}
+        texto_usuario = f"""{CONTEXTO_PREGUNTA_GUARDRAILS}
+        {contexto_largo_condicional}
 
 Responde en español, de forma clara, profesional y analítica.
 Usa ÚNICAMENTE la información contenida en los resúmenes y titulares listados abajo.
