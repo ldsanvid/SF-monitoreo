@@ -1732,11 +1732,20 @@ def pregunta():
 
             print(f"🧾 Noticias en rango {fecha_inicio} → {fecha_fin}: {len(df_rango)} filas")
 
-                # ✅ 2.5) MODO CONTEO: si preguntan "¿Cuántas...?" devolvemos número (sin LLM)
+        # ✅ 2.5) MODO CONTEO: si preguntan "¿Cuántas...?" devolvemos número (sin LLM)
         if es_pregunta_conteo(q):
             df_base = df_rango if tiene_rango else df
 
             df_filtrado, sent = filtrar_df_para_conteo(df_base, q, entidades)
+
+            # Aviso si el rango se ajustó a la disponibilidad del dataset
+            nota_ajuste = ""
+            if isinstance(origen_rango, str) and "ajustada_dataset" in origen_rango:
+                fecha_min_ds = pd.to_datetime(df_base["Fecha"]).dt.date.min() if "Fecha" in df_base.columns else None
+                fecha_max_ds = pd.to_datetime(df_base["Fecha"]).dt.date.max() if "Fecha" in df_base.columns else None
+                if fecha_min_ds and fecha_max_ds:
+                    nota_ajuste = f" Nota: tu rango se ajustó porque el dataset disponible va de {fecha_min_ds} a {fecha_max_ds}."
+
 
             total = int(len(df_filtrado))
 
@@ -1758,7 +1767,7 @@ def pregunta():
             if re.search(r"\bcentro\b", q.lower()):
                 sujeto += " y/o sobre el centro"
 
-            respuesta = f"{total} — Hubo {total} {sujeto} {periodo}."
+            respuesta = f"{total} — Hubo {total} {sujeto} {periodo}.{nota_ajuste}"
 
             return jsonify({
                 "respuesta": respuesta,
