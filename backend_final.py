@@ -652,6 +652,55 @@ def extraer_entidades(texto):
             encontrados["personajes"].append(nombre)
 
     return encontrados
+# 4.B) Detectar si la pregunta es de CONTEO ("¿Cuántas...?")
+def es_pregunta_conteo(pregunta: str) -> bool:
+    t = (pregunta or "").lower().strip()
+    return (
+        bool(re.search(r"\bcu[aá]nt[oa]s?\b", t))  # cuántas/cuantas/cuántos/cuantos
+        or "número de noticias" in t
+        or "numero de noticias" in t
+        or "cantidad de noticias" in t
+        or "cuenta de noticias" in t
+        or "cuántas noticias" in t
+        or "cuántas notas"
+
+    )
+
+# 4.C) Aplicar filtros para conteo (sentimiento + entidades + "centro")
+def filtrar_df_para_conteo(df_in: pd.DataFrame, pregunta: str, entidades: dict):
+    df_f = df_in.copy()
+
+    # 1) Sentimiento (si la pregunta lo pide)
+    sent = detectar_sentimiento_deseado(pregunta)
+    if sent and "Sentimiento" in df_f.columns:
+        df_f = df_f[df_f["Sentimiento"].astype(str).str.contains(sent, case=False, na=False)]
+
+    # 2) Texto combinado para buscar entidades
+    titulo_col = "Título" if "Título" in df_f.columns else "Titulo"  # por si acaso
+    termino_col = "Término" if "Término" in df_f.columns else "Termino"
+
+    texto = (
+        df_f.get(titulo_col, "").astype(str)
+        + " "
+        + df_f.get(termino_col, "").astype(str)
+    ).str.lower()
+
+    # 3) Personajes detectados
+    pers = [p.lower() for p in (entidades or {}).get("personajes", [])]
+    if pers:
+        mask = pd.Series(False, index=df_f.index)
+        for p in pers:
+            if p:
+                mask = mask | texto.str.contains(re.escape(p), na=False)
+        df_f = df_f[mask]
+        texto = texto.loc[df_f.index]
+
+    # 4) Si la pregunta menciona "centro", forzamos filtro a notas con "centro"
+    if re.search(r"\bcentro\b", (pregunta or "").lower()):
+        df_f = df_f[texto.str.contains("centro", na=False)]
+
+    return df_f, sent
+
 
 # 5️⃣ Filtrar titulares por entidades y sentimiento (versión mejorada)
 def filtrar_titulares(df_filtrado, entidades, sentimiento_deseado):
@@ -1682,6 +1731,45 @@ def pregunta():
             df_rango = df_validas[mask].copy()
 
             print(f"🧾 Noticias en rango {fecha_inicio} → {fecha_fin}: {len(df_rango)} filas")
+
+                # ✅ 2.5) MODO CONTEO: si preguntan "¿Cuántas...?" devolvemos número (sin LLM)
+        if es_pregunta_conteo(q):
+            df_base = df_rango if tiene_rango else df
+
+            df_filtrado, sent = filtrar_df_para_conteo(df_base, q, entidades)
+
+            total = int(len(df_filtrado))
+
+            # Texto del periodo
+            if fecha_inicio and fecha_fin:
+                if fecha_inicio == fecha_fin:
+                    periodo = f"el {fecha_inicio}"
+                else:
+                    periodo = f"entre {fecha_inicio} y {fecha_fin}"
+            else:
+                periodo = "en todo el periodo disponible"
+
+            # Texto del sujeto
+            sujeto = "noticias"
+            if sent:
+                sujeto = f"noticias {sent.lower()}s"  # "negativas", "positivas", etc. (simple)
+            if entidades.get("personajes"):
+                sujeto += f" sobre {', '.join(entidades['personajes'])}"
+            if re.search(r"\bcentro\b", q.lower()):
+                sujeto += " y/o sobre el centro"
+
+            respuesta = f"{total} — Hubo {total} {sujeto} {periodo}."
+
+            return jsonify({
+                "respuesta": respuesta,
+                "titulares_usados": [],
+                "filtros": {
+                    "modo": "conteo",
+                    "entidades": entidades,
+                    "sentimiento": sent,
+                    "rango": [str(fecha_inicio), str(fecha_fin)] if (fecha_inicio and fecha_fin) else None,
+                }
+            })
 
         # 🧠 3️⃣ Recuperar resúmenes relevantes (contexto macro)
         resumen_docs = []
