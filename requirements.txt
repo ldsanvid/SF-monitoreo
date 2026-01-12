@@ -17,4 +17,7 @@ gunicorn
 python-dotenv
 langchain-openai
 langchain-community
-langchain-core
+langchain-core      
+spacy
+lxml
+html5lib
