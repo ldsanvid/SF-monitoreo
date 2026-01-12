@@ -1045,7 +1045,9 @@ REGLAS FUNDAMENTALES (PROHIBICIONES ABSOLUTAS)
     “Las noticias del día…”, “Las noticias de {fecha_str}…”, “Este día fue relevante…”
   - Explicar por qué algo es importante, relevante, significativo o preocupante.
   - Usar frases como:
-    “lo que implica”, “lo que refuerza”, “lo que podría”, “lo que resalta”, “esto es clave”, “esto podría ser”.
+    “lo que implica”, “lo que refuerza”, “lo que podría”, “lo que resalta”, “esto es clave”, “esto podría ser”, “esto refleja…”, 
+    “esto muestra…”, “esto evidencia…”, “en conjunto…”, “en este contexto…”, “lo anterior da cuenta de…”, “estos hechos reflejan…”, 
+  “estos resultados reflejan…”.
   - Hacer inferencias, conclusiones, evaluaciones o lecturas políticas.
   - Agregar contexto que NO esté explícitamente contenido en los titulares o que no esté dentro de {CONTEXTO_POLITICO}.
 
@@ -1056,8 +1058,13 @@ REGLAS FUNDAMENTALES (PROHIBICIONES ABSOLUTAS)
 - Usar únicamente contexto que esté dentro de {CONTEXTO_POLITICO}
 - Tienes titulares de noticias sobre política colombiana del día {fecha_str}.
 
-Debes redactar HASTA CUATRO PÁRRAFOS CONTINUOS (sin títulos, sin encabezados, sin numeración). 
+Debes redactar HASTA TRES PÁRRAFOS CONTINUOS (sin títulos, sin encabezados, sin numeración). 
 Solo escribe un párrafo si realmente hay material para ese párrafo; si no lo hay, NO lo escribas y concluye en el último párrafo válido.
+CIERRE DEL TEXTO
+- El último párrafo NO debe funcionar como conclusión.
+- No resumas ni sintetices lo ya dicho.
+- El último enunciado debe describir un hecho puntual (encuesta, declaración, debate, publicación, decisión).
+- El texto debe TERMINAR en un hecho concreto reportado, no en una valoración global.
 
 Estructura:
 - Párrafo 1: el hecho o tema MÁS REPETIDO del día sobre Sergio Fajardo, redactado en prosa factual (qué pasó / qué se reportó).
@@ -1149,6 +1156,20 @@ Contexto general del día (todas las noticias):
         )
 
         resumen_texto = respuesta.choices[0].message.content.strip()
+
+        # 🧹 Limpieza de frases interpretativas de cierre
+        patrones_prohibidos = [
+            r"estos resultados reflejan.*$",
+            r"esto refleja.*$",
+            r"esto evidencia.*$",
+            r"en conjunto.*$",
+            r"en este contexto.*$",
+            r"lo anterior.*$",
+        ]
+
+        for patron in patrones_prohibidos:
+            resumen_texto = re.sub(patron, "", resumen_texto, flags=re.IGNORECASE | re.DOTALL).strip()
+
 
         # Guardar resumen nuevo
         with open(archivo_resumen, "w", encoding="utf-8") as f:
