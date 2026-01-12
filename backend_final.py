@@ -787,7 +787,6 @@ def seleccionar_titulares_categorizados(noticias_dia, max_total=None):
     """
     Selecciona titulares asociados a:
     - Sergio Fajardo
-    - Centro (ideológico)
 
     Prioriza los títulos más repetidos del día.
 
@@ -1026,7 +1025,7 @@ def generar_resumen_y_datos(fecha_str):
 
 
     # =============================================================================
-    # 4️⃣ PROMPT CON HASTA 4 PÁRRAFOS (P4 solo si hay Centro)
+    # 4️⃣ PROMPT CON 3 PÁRRAFOD
     # =============================================================================
     prompt = f"""
 {CONTEXTO_ANTERIOR}
@@ -1038,9 +1037,7 @@ ROL
 Eres un redactor técnico que elabora un BRIEF FACTUAL INTERNO.
 NO eres analista, NO eres columnista, NO haces interpretación ni contexto adicional.
 
-Debes redactar un resumen enfocado en:
-1) todo lo que se diga sobre Sergio Fajardo, y
-2) menciones al “centro” ideológico (cuando existan en el dataset, típicamente vía Término).
+Debes redactar un resumen enfocado en todo lo que se diga sobre Sergio Fajardo:
 
 REGLAS FUNDAMENTALES (PROHIBICIONES ABSOLUTAS)
 - Está TERMINANTEMENTE PROHIBIDO:
@@ -1057,7 +1054,7 @@ REGLAS FUNDAMENTALES (PROHIBICIONES ABSOLUTAS)
 - Reescribir los hechos en prosa clara y neutra, sin calificarlos.
 - Usar únicamente información que esté explícita en los titulares listados.
 - Usar únicamente contexto que esté dentro de {CONTEXTO_POLITICO}
-Tienes titulares de noticias sobre política colombiana del día {fecha_str}.
+- Tienes titulares de noticias sobre política colombiana del día {fecha_str}.
 
 Debes redactar HASTA CUATRO PÁRRAFOS CONTINUOS (sin títulos, sin encabezados, sin numeración). 
 Solo escribe un párrafo si realmente hay material para ese párrafo; si no lo hay, NO lo escribas y concluye en el último párrafo válido.
@@ -1066,7 +1063,6 @@ Estructura:
 - Párrafo 1: el hecho o tema MÁS REPETIDO del día sobre Sergio Fajardo, redactado en prosa factual (qué pasó / qué se reportó).
 - Párrafo 2: el segundo hecho o tema más repetido sobre Sergio Fajardo, solo si es claramente diferente del primero; si no, integra aquí el resto de menciones relevantes sobre Fajardo.
 - Párrafo 3: una tercera hecho o tema sobre Fajardo solo si es claramente diferente de los anteriores; si no existe, no escribas este párrafo.
-- Párrafo 4 (solo si aplica): desarrolla lo que se diga del “Centro” ideológico (notas cuyo Término contenga “centro”). Si no hay notas de Centro, NO escribas este párrafo.
 
 ESTILO
 - Lenguaje neutro, seco y factual.
