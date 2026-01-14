@@ -1074,7 +1074,7 @@ CIERRE DEL TEXTO
 Estructura:
 - Párrafo 1: el hecho o tema MÁS REPETIDO del día sobre Sergio Fajardo, redactado en prosa factual (qué pasó / qué se reportó).
 - Párrafo 2: el segundo hecho o tema más repetido sobre Sergio Fajardo, solo si es claramente diferente del primero; si no, integra aquí el resto de menciones relevantes sobre Fajardo.
-- Párrafo 3: una tercera hecho o tema sobre Fajardo solo si es claramente diferente de los anteriores; si no existe, no escribas este párrafo.
+- Párrafo 3: el tercero y hasta cuarto hecho (si lo hubiera) sobre Fajardo solo si es claramente diferente de los anteriores; si no existe, no escribas este párrafo.
 
 ESTILO
 - Lenguaje neutro, seco y factual.
