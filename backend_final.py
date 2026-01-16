@@ -654,17 +654,47 @@ def extraer_entidades(texto):
     return encontrados
 # 4.B) Detectar si la pregunta es de CONTEO ("¿Cuántas...?")
 def es_pregunta_conteo(pregunta: str) -> bool:
-    t = (pregunta or "").lower().strip()
-    return (
-        bool(re.search(r"\bcu[aá]nt[oa]s?\b", t))  # cuántas/cuantas/cuántos/cuantos
-        or "número de noticias" in t
-        or "numero de noticias" in t
-        or "cantidad de noticias" in t
-        or "cuenta de noticias" in t
-        or "cuántas noticias" in t
-        or "cuántas notas"
+    """
+    Devuelve True SOLO cuando la pregunta es explícitamente de conteo, del tipo:
+    - ¿Cuántas noticias hubo sobre X...?
+    - ¿Cuántas notas negativas hubo...?
+    - ¿Cuál es el número/cantidad de noticias...?
 
+    Preguntas como:
+    - ¿Qué se dijo sobre...?
+    - ¿Qué noticias hubo de...?
+    SIEMPRE deben ir al modo narrativo, no a conteo.
+    """
+    if not pregunta:
+        return False
+
+    t = (pregunta or "").lower().strip()
+
+    # 1) Tiene intención numérica (cuántas / número / cantidad / total)
+    tiene_trigger_numerico = (
+        bool(re.search(r"\bcu[aá]nt[oa]s?\b", t)) or
+        "número de" in t or "numero de" in t or
+        "cantidad de" in t or
+        "total de" in t or
+        "cuenta de" in t
     )
+
+    if not tiene_trigger_numerico:
+        return False
+
+    # 2) Está preguntando por noticias / notas / menciones
+    objeto_noticias = any(
+        palabra in t
+        for palabra in [
+            "noticia", "noticias",
+            "nota", "notas",
+            "mención", "menciones"
+        ]
+    )
+
+    return objeto_noticias
+
+
 
 # 4.C) Aplicar filtros para conteo (sentimiento + entidades + "centro")
 def filtrar_df_para_conteo(df_in: pd.DataFrame, pregunta: str, entidades: dict):
@@ -1785,10 +1815,33 @@ def pregunta():
                 sujeto += " y/o sobre el centro"
 
             respuesta = f"{total} — Hubo {total} {sujeto} {periodo}.{nota_ajuste}"
+            # ✅ Titulares de ejemplo para el frontend (aunque sea conteo)
+            # ✅ Construir algunos titulares para mostrar en el frontend (máx. 6)
+            titulares_usados = []
+            try:
+                df_show = df_filtrado.copy()
+                if "Fecha" in df_show.columns:
+                    df_show = df_show.sort_values("Fecha", ascending=False)
+
+                for _, row in df_show.head(6).iterrows():
+                    fecha_val = row.get("Fecha", None)
+                    try:
+                        fecha_str_show = pd.to_datetime(fecha_val).strftime("%Y-%m-%d") if pd.notnull(fecha_val) else ""
+                    except Exception:
+                        fecha_str_show = ""
+
+                    titulares_usados.append({
+                        "titulo": str(row.get("Título", "")).strip(),
+                        "medio": str(row.get("Fuente", "")).strip(),
+                        "fecha": fecha_str_show,
+                        "enlace": str(row.get("Enlace", "")).strip(),
+                    })
+            except Exception as e:
+                print(f"⚠️ No se pudieron construir titulares_usados en modo conteo: {e}")
 
             return jsonify({
                 "respuesta": respuesta,
-                "titulares_usados": [],
+                "titulares_usados": titulares_usados,
                 "filtros": {
                     "modo": "conteo",
                     "entidades": entidades,
@@ -1796,6 +1849,7 @@ def pregunta():
                     "rango": [str(fecha_inicio), str(fecha_fin)] if (fecha_inicio and fecha_fin) else None,
                 }
             })
+
 
         # 🧠 3️⃣ Recuperar resúmenes relevantes (contexto macro)
         resumen_docs = []
