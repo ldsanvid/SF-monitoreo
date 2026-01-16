@@ -543,20 +543,11 @@ def filtrar_por_scope(noticias_df: pd.DataFrame) -> pd.DataFrame:
 # ------------------------------
 CONTEXTO_PREGUNTA_GUARDRAILS = """
 Contexto actualizado a julio 2025. Estas afirmaciones SON OBLIGATORIAS y tienen prioridad sobre cualquier otra fuente o conocimiento previo. No uses formulaciones contradictorias:
-- Francia Márquez es la actual Vicepresidenta de Colombia, electa en 2022.
 - Armando Benedetti es el actual Ministro de Interior de Colombia, desde el 1 de marzo de 2025.
-- Cristian Quiroz es el Magistrado y Presidente del Consejo Nacional Electoral de Colombia.
-- Hernán Penagos Giraldo es el actual Director General de la Registraduría Nacional del Estado Civil de Colombia.
 - Gustavo Petro es el actual Presidente de Colombia, en el cargo desde 2022 y hasta 2026.
 - El DAPRE es DEPARTAMENTO ADMINISTRATIVO PRESIDENCIA DE LA REPÚBLICA de Colombia. Angie Rodríguez es la directora.
 - El 31 de mayo de 2026 se llevará a cabo la primera vuelta de la elección presidencial en Colombia.
 - El 21 de julio de 2026 se llevará a cabo la segunda vuelta de la elección presidencial en Colombia.
-- A menos de que veas la palabra Hiroituango expresamente en el titular, no la menciones.
-"""
-# ------------------------------
-# 🗳️ Contexto Electoral 2026 (tu bitácora viva)
-# ------------------------------
-CONTEXTO_POLITICO = """
 - El 8 de marzo de 2026 se llevarán a cabo las elecciones legislativas en Colombia, donde se eligirán a los miembros de ambas cámaras del Congreso de Colombia para el periodo 2026-2030.
 - El 26 de octubre de 2025 se realizó la consulta presidencial del Pacto Histórico (movimiento político de izquierda de Gustavo Petro) para escoger el candidato del partido a la presidencia en las elecciones presidenciales de Colombia de 2026. El ganador de la consulta fue el senador Iván Cepeda, obteniendo formalmente el aval para aspirar a la Presidencia de la República.
 - El Partido Movimiento de Salvación Nacional, de derecha, respaldó a Abelardo de la Espriella como precandidato, quien a principios de diciembre de 2025 entregó alrededor de 5 millones de firmas ante la Registraduría para inscribir su candidatura a la Presidencia de Colombia.
@@ -566,11 +557,16 @@ CONTEXTO_POLITICO = """
 - Juan Daniel Oviedo es un precandidato presidencial, exdirector del Departamento Administrativo Nacional de Estadística de Colombia (DANE). Es de ideología centrista.
 - Vicky Dávila es una conocida periodista y precandidata presidencial. Es de ideología de derecha.
 - El Partido Centro Democrático oficializó este 15 de diciembre a Paloma Valencia como su candidata presidencial.
-- El 30 de noviembre de 2025 se publicó una encuesta de INVAMER que muestra a Iván Cepeda con 31.9% de la intención de voto, Abelardo De La Espriella con 18.2% y Sergio Fajardo con 8.5%. El resto de precandidatos registra menos intención de voto que la opción del voto en blanco.
-- En la encuesta de INVAMER del 30 de noviembre, en el escenario de segunda vuelta que enfrente a Cepeda contra De la Espriella, Cepeda saca 59.1%, y De la Espriella 36.2%. Enun esceneario de Cepeda contra Fajardo, Cepeda se queda en 48.9% y Fajardo en 46.4%. En un escenario de Fajardo contra De la Espriella, Fajardo gana con 51.7% mientras que De la Espriella se queda en 38.9%.
-- Hidroituango es un megaproyecto hidroeléctrico en Antioquia, Colombia, desarrollado por EPM en la que el organismo de control declaró responsables fiscales a 26 personas, incluyendo al Sergio Fajardo, quien fue gobernador cuando se planeó la obra, por los errores que llevaron al colapso de la obra en 2018 debido a obstrucciones generalizadas en los túneles de desviación del río Cauca. La obra terminó pero con retrasos.
 - Los precandidatos Mauricio Cárdenas, David Luna, Vicky Dávila, Juan Manuel Galán, Aníbal Gaviria y Juan Daniel Oviedo se medirán en una consulta interpartidista llamada "Gran Consulta por Colombia" que será en marzo de 2026 para elegir a un candidato que represente a la centro-derecha.
+- El 30 de noviembre de 2025 se publicó una encuesta de INVAMER que muestra a Iván Cepeda con 31.9% de la intención de voto, Abelardo De La Espriella con 18.2% y Sergio Fajardo con 8.5%. El resto de precandidatos registra menos intención de voto que la opción del voto en blanco.
 - A principios de enero de 2026, la firma AtlasIntel levantó una encuesta para Semana. En intención de voto midiendo a todos ls precandidatos, pone a Abelardo de la Espriella (28%) en primero, seguido de Iván Cepeda (26.5%), Sergio Fajardo (9.4%), Juan Carlos Pinzón (5,1%), Paloma Valencia (5,1%), Claudia López (2,6%), Enrique Peñalosa (2,3%), Juan Daniel Oviedo (1,8 %), Aníbal Gaviria (1,3%), Juan Manuel Galán (1,1%), David Luna (0,9%), Vicky Dávila (0,9%), Daniel Quintero (0,4%), Mauricio Cárdenas (0,4%) y Roy Barreras (0,2%). En escenarios de segunda vuelta,  De la Espriella (44,2 %) derrotaría a Cepeda (34,9%). Fajardo (39.6%) derrotaría a Cepeda (32.1%). De la Espriella (37.9%) derrotaría a Fajardo (23.2%). Paloma Valencia (38.2%) derrotaría a Cepeda (35.8%). En La Gran Consulta por Colombia, ganaría Paloma Valencia. Por ideología política, De la Espriella concentra 63.7% de la derecha, 33.8% de la centroderecha y 2.6%  del centro. Cepeda gana la izquierda (83,5%) y la centroizquierda (68,1%).
+- Por lo tanto, Cepeda, De la Espriella y Fajardo son los más fuertes contendientes, además de rivales entre sí.
+"""
+# ------------------------------
+# 🗳️ Contexto Electoral 2026 (tu bitácora viva)
+# ------------------------------
+CONTEXTO_POLITICO = """
+- Hidroituango es un megaproyecto hidroeléctrico en Antioquia, Colombia, desarrollado por EPM en la que el organismo de control declaró responsables fiscales a 26 personas, incluyendo al Sergio Fajardo, quien fue gobernador cuando se planeó la obra, por los errores que llevaron al colapso de la obra en 2018 debido a obstrucciones generalizadas en los túneles de desviación del río Cauca. La obra terminó pero con retrasos.
 - Si ves un titular llamado "A propósito de una nueva encuesta", habla sobre la encuesta de AtlasIntel para la Revista Semana. Resalta "La nueva encuesta debe hacernos preguntar a qué juega el candidato Sergio Fajardo insistiendo en seguir solo mientras de la Espriella y Cepeda le sacan una ventaja tan amplia...debemos llamar la atención por la forma en que su candidatura aislada fragmenta la unidad de toda la oposición, que poco a poco se ha organizado alrededor de la Gran Consulta por Colombia...Fajardo debe acercarse a la consulta, donde tendría una muy alta posibilidad de ganar y ser proclamado candidato de un segmento tan amplio de la política nacional.",  
 - Si ves un titular llamado "2026 sin ilusiones", habla sobre "Figuras como Sergio Fajardo o Claudia López conservan reconocimiento, pero deben demostrar que aún pueden organizar expectativa colectiva y no limitarse a acumular adhesiones individuales."
 - Si ves un titular llamado "Los movimientos que agitarán el ajedrez político en la campaña presidencial esta semana", mencionanan a Fajardo diciendo que "seguiría buscando respaldos a nivel nacional con su movimiento ‘La Nueva Mayoría’, en el que, según informó, ya tiene más de 100.000 voluntarios y respaldos. Además, sobre su equipo, la última ficha en sumarse fue la excanciller María Ángela Holguín, su esposa, quien trazará la estrategia de relaciones diplomáticas en su campaña".
