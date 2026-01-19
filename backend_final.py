@@ -1091,7 +1091,7 @@ REGLAS FUNDAMENTALES (PROHIBICIONES ABSOLUTAS)
 - Tienes titulares de noticias sobre política colombiana del día {fecha_str}.
 
 Debes redactar HASTA TRES PÁRRAFOS CONTINUOS (sin títulos, sin encabezados, sin numeración). 
-Solo escribe un párrafo si realmente hay material para ese párrafo; si no lo hay, NO lo escribas y concluye en el último párrafo válido.
+Solo escribe un párrafo si realmente hay material para ese párrafo; si no lo hay, NO lo escribas y concluye en el último párrafo válido. 
 CIERRE DEL TEXTO
 - El último párrafo NO debe funcionar como conclusión.
 - No resumas ni sintetices lo ya dicho.
